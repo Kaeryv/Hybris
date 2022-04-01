@@ -1,0 +1,156 @@
+{
+    "train":{
+        "title": "Training benchmark",
+        "description":"A personal benchmark used to perform meta-optimization.",
+        "optimizer_args": {
+            "max_fevals": 40000,
+            "num_agents": 40,
+            "num_variables": [50, 0]
+        },
+        "funset": 1,
+        "soluces": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    "train_20":{
+        "title": "Training benchmark",
+        "description":"A personal benchmark used to perform meta-optimization.",
+        "optimizer_args": {
+            "max_fevals": 40000,
+            "num_agents": 40,
+            "num_dimensions": 20
+        },
+        "funset": 1,
+        "soluces": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    "train_100":{
+        "title": "Training benchmark",
+        "description":"A personal benchmark used to perform meta-optimization.",
+        "optimizer_args": {
+            "max_fevals": 40000,
+            "num_agents": 40,
+            "num_dimensions": 100
+        },
+        "funset": 1,
+        "soluces": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    "test":{
+        "title": "Test benchmark",
+        "description":"",
+        "optimizer_args": {
+            "max_fevals": 100,
+            "num_agents": 10,
+            "num_dimensions": 20
+        },
+        "funset": 1,
+        "soluces": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    "cec20_mod": {
+        "title": "Modified Gecco 2020 Bound-Contrained Optimization Competition",
+        "description": "Validation benchmark based on the GECCO 2020 competition with way less fevals.",
+        "optimizer_args": {
+            "max_fevals": 40000,
+            "num_agents": 50,
+            "num_dimensions": 20
+        },
+        "funset": 2,
+        "soluces": [ 100, 1100, 700, 1900, 1700, 1600, 2100, 2200, 2400, 2500 ]
+    },
+    "cec20_mod4": {
+        "title": "Modified Gecco 2020 Bound-Contrained Optimization Competition",
+        "description": "Validation benchmark based on the GECCO 2020 competition with way less fevals.",
+        "optimizer_args": {
+            "max_fevals": 40000,
+            "num_agents": 60,
+            "num_dimensions": 20
+        },
+        "funset": 2,
+        "soluces": [ 100, 1100, 700, 1900, 1700, 1600, 2100, 2200, 2400, 2500 ]
+    },
+    "cec20_true": {
+        "title": "Modified Gecco 2020 Bound-Contrained Optimization Competition",
+        "description": "Validation benchmark based on the GECCO 2020 competition with way less fevals.",
+        "optimizer_args": {
+            "max_fevals": 40000,
+            "num_agents": 40,
+            "num_dimensions": 50
+        },
+        "funset": 2,
+        "soluces": [ 100, 1100, 700, 1900, 1700, 1600, 2100, 2200, 2400, 2500 ]
+    },
+    "cec20_mod3": {
+        "title": "Modified Gecco 2020 Bound-Contrained Optimization Competition",
+        "description": "Validation benchmark based on the GECCO 2020 competition with way less fevals.",
+        "optimizer_args": {
+            "max_fevals": 40000,
+            "num_agents": 40,
+            "num_dimensions": 20
+        },
+        "funset": 2,
+        "soluces": [ 100, 1100, 700, 1900, 1700, 1600, 2100, 2200, 2400, 2500 ]
+    },
+    "cec20_20d": {
+        "title": "Gecco 2020 Bound-Contrained Optimization Competition",
+        "description": "Validation benchmark based on the GECCO 2020 competition, 20d.",
+        "optimizer_args": {
+            "max_fevals": 10000000,
+            "num_agents": 50,
+            "num_dimensions": 20
+        },
+        "funset": 2,
+        "soluces": [ 100, 1100, 700, 1900, 1700, 1600, 2100, 2200, 2400, 2500 ]
+    },
+    "cec20_20d_40p_1m": {
+        "title": "Gecco 2020 Bound-Contrained Optimization Competition",
+        "description": "Validation benchmark based on the GECCO 2020 competition, 20d.",
+        "optimizer_args": {
+            "max_fevals": 10000000,
+            "num_agents": 40,
+            "num_dimensions": 20
+        },
+        "funset": 2,
+        "soluces": [ 100, 1100, 700, 1900, 1700, 1600, 2100, 2200, 2400, 2500 ]
+    },
+    "cec20_20d_40p": {
+        "title": "Gecco 2020 Bound-Contrained Optimization Competition",
+        "description": "Validation benchmark based on the GECCO 2020 competition, 20d.",
+        "optimizer_args": {
+            "max_fevals": 40000,
+            "num_agents": 40,
+            "num_dimensions": 20
+        },
+        "funset": 2,
+        "soluces": [ 100, 1100, 700, 1900, 1700, 1600, 2100, 2200, 2400, 2500 ]
+    },
+     "cec20_20d_100p": {
+        "title": "Gecco 2020 Bound-Contrained Optimization Competition",
+        "description": "Validation benchmark based on the GECCO 2020 competition, 20d.",
+        "optimizer_args": {
+            "max_fevals": 40000,
+            "num_agents": 100,
+            "num_dimensions": 20
+        },
+        "funset": 2,
+        "soluces": [ 100, 1100, 700, 1900, 1700, 1600, 2100, 2200, 2400, 2500 ]
+    },
+    "cec20_20d_30p": {
+        "title": "Gecco 2020 Bound-Contrained Optimization Competition",
+        "description": "Validation benchmark based on the GECCO 2020 competition, 20d.",
+        "optimizer_args": {
+            "max_fevals": 40000,
+            "num_agents": 30,
+            "num_dimensions": 20
+        },
+        "funset": 2,
+        "soluces": [ 100, 1100, 700, 1900, 1700, 1600, 2100, 2200, 2400, 2500 ]
+    },
+    "cec20_50d_40p": {
+        "title": "Gecco 2020 Bound-Contrained Optimization Competition",
+        "description": "Validation benchmark based on the GECCO 2020 competition, 20d.",
+        "optimizer_args": {
+            "max_fevals": 40000,
+            "num_agents": 40,
+            "num_dimensions": 50
+        },
+        "funset": 2,
+        "soluces": [ 100, 1100, 700, 1900, 1700, 1600, 2100, 2200, 2400, 2500 ]
+    }
+}

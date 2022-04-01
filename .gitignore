@@ -1,0 +1,18 @@
+# Python byproducts
+*.pyc
+__pycache__/
+*.ipynb
+
+# Data
+*.npz
+*.npy
+*.txt
+*.csv
+# C Binary files
+*.so
+*.o
+*.a
+*.out
+*.dll
+*.lib
+*.exe

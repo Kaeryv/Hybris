@@ -9,12 +9,12 @@
 #define CNPY_IMPLEMENTATION
 #include "cnpy.h"
 
-
 #define FUZZY_IMPLEMENTATION
 #include "fuzzy.h"
 
 #define CECBENCH_IMPLEMENTATION
 #include "cecbench.h"
+
 #define FUNCTIONS_IMPLEMENTATION
 #include "functions.h"
 

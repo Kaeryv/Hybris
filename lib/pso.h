@@ -37,7 +37,7 @@ const global i32 conf_seeds[] = { 90808690 , 188454989, 141573185, 64511191 , 18
 /**
  * @brief Probes values.
  * Just add your probe here and start using it!
- * Don't forget to add its boundaries just below.
+ * Don't forget to add its boundaries below.
  */
 enum {
   PIMPROVEMENT = 0,
@@ -46,16 +46,6 @@ enum {
   NUM_PROBES
 };
 
-/**
- * @brief Definitions of the Fuzzy probes' membership values
- * 
- */
-global f64 conf_probes_membership[NUM_PROBES][3] = {
-  [PIMPROVEMENT] = { -1.0,  0.0,  1.0},
-//  [PCLUSTERING1] = {  -4.,  -2, -0.5},
-  [PCLUSTERING1] = {  -5.,  -2, -1.5},
-  [PTIME] =        {  0.3,  0.5,  0.8}
-};
 
 /**
  * @brief Parameters values.
@@ -65,35 +55,6 @@ enum {
   WLOWER_SPEED_LIMIT, WUPPER_SPEED_LIMIT,
   WFRIENDS_CAPACITY, NUM_WEIGHTS
 };
-
-/**
- * @brief Parameters boundaries.
- * 
- */
-global f64 conf_controllers_membership[NUM_WEIGHTS][3] = {
-  [WINERTIA]           = {  0.3,  0.7,        0.9  },
-  [WCONFIDENCE]        = {  0.7,  1.49618,    2.0  },
-  [WSOCIAL]            = {  0.7,  1.49618,    2.0  },
-  [WHYBRIDATION]       = {  0.0,  0.35,       0.7  },
-  [WLOWER_SPEED_LIMIT] = { -5.,  -3.,        -2.5  },
-  [WUPPER_SPEED_LIMIT] = {  0.2,  0.6,        1.0  },
-  [WFRIENDS_CAPACITY]  = {  3.0,  5.0,        9.0  },
-};
-
-/**
- * @brief Parameters default (static) values.
- * 
- */
-global f64 conf_initial_weights[] = {
-  [WINERTIA]           = 0.7298,
-  [WCONFIDENCE]        = 1.49618,
-  [WSOCIAL]            = 1.49618,
-  [WHYBRIDATION]       = 0.0,
-  [WLOWER_SPEED_LIMIT] = -16,
-  [WUPPER_SPEED_LIMIT] = 0.6,
-  [WFRIENDS_CAPACITY]  = 3.0,
-};
-
 
 typedef subroutine (*iteration_cb_t)(ptr);
 
@@ -174,7 +135,7 @@ reg_get_categorical_probability(registry_t *reg, i32 i) {
     return &(reg->cat_var_valprob[i * conf_max_num_cat_values]);
 }
 
-internal inline u32
+internal u32
 reg_get_num_categories(registry_t *reg, const i32 variable_id);
 
 subroutine
@@ -184,6 +145,43 @@ reg_minimize_problem(registry_t* reg, TestCase test_case, u32 seed);
 #ifdef PSO_IMPLEMENTATION
 
 
+/**
+ * @brief Definitions of the Fuzzy probes' membership values
+ * 
+ */
+global f64 conf_probes_membership[NUM_PROBES][3] = {
+  [PIMPROVEMENT] = { -1.0,  0.0,  1.0},
+//  [PCLUSTERING1] = {  -4.,  -2, -0.5},
+  [PCLUSTERING1] = {  -5.,  -2, -1.5},
+  [PTIME] =        {  0.3,  0.5,  0.8}
+};
+/**
+ * @brief Parameters boundaries.
+ * 
+ */
+global f64 conf_controllers_membership[NUM_WEIGHTS][3] = {
+  [WINERTIA]           = {  0.3,  0.7,        0.9  },
+  [WCONFIDENCE]        = {  0.7,  1.49618,    2.0  },
+  [WSOCIAL]            = {  0.7,  1.49618,    2.0  },
+  [WHYBRIDATION]       = {  0.0,  0.35,       0.7  },
+  [WLOWER_SPEED_LIMIT] = { -5.,  -3.,        -2.5  },
+  [WUPPER_SPEED_LIMIT] = {  0.2,  0.6,        1.0  },
+  [WFRIENDS_CAPACITY]  = {  3.0,  5.0,        9.0  },
+};
+
+/**
+ * @brief Parameters default (static) values.
+ * 
+ */
+global f64 conf_initial_weights[] = {
+  [WINERTIA]           = 0.7298,
+  [WCONFIDENCE]        = 1.49618,
+  [WSOCIAL]            = 1.49618,
+  [WHYBRIDATION]       = 0.0,
+  [WLOWER_SPEED_LIMIT] = -16,
+  [WUPPER_SPEED_LIMIT] = 0.6,
+  [WFRIENDS_CAPACITY]  = 3.0,
+};
 /**
  * Getters and Setters for python API.
  */

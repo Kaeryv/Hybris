@@ -1,8 +1,26 @@
 #pragma once
 
-
 #include "core.h"
 
+// If cec module is present, this struct is overriden.
+#ifndef CECBENCH_MODULE
+struct fun_state {
+  struct pcg32_random *prng;
+};
+#endif
+
+typedef void (*testcase_t)(const f64*, const i32, const i32, f64*, struct fun_state state);
+
+typedef struct {
+  const char * name;
+  testcase_t function;
+  f64 lower;
+  f64 upper;
+  u32 flags;
+} TestCase;
+
+
+#ifndef HYBRIS_DISABLE_TESTCASES
 
 #define TEST_CASE(X) \
   void X (const f64 *noalias x, \
@@ -34,13 +52,6 @@
   
 
 #endif
-struct fun_state {
-  struct pcg32_random *prng;
-#ifdef CECBENCH_MODULE
-  // We need the global state for cec benchmark.
-  struct cecbench_state *cecglobals;
-#endif
-};
 
 TEST_CASE(sphere);
 TEST_CASE(ackley);
@@ -69,15 +80,6 @@ DECL_CEC_WRAPPER(8);
 DECL_CEC_WRAPPER(9);
 DECL_CEC_WRAPPER(10);
 
-typedef void (*testcase_t)(const f64*, const i32, const i32, f64*, struct fun_state state);
-
-typedef struct {
-  const char * name;
-  testcase_t function;
-  f64 lower;
-  f64 upper;
-  u32 flags;
-} TestCase;
 
 
 u32
@@ -112,16 +114,16 @@ global TestCase test_cases_map[] = {
   { name: "xinsheyang2",    function: xinsheyang2,     lower: -   6.2832, upper:   6.2832 , flags: TRAINING   | SURFACEABLE },
   { name: "bentcigar",      function: bentcigar,       lower: - 100.0   , upper: 100.0    , flags: TRAINING   | SURFACEABLE },
 #ifdef CECBENCH_MODULE
-  { name: "cec_1",          function: &cec_1,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
-  { name: "cec_2",          function: &cec_2,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
-  { name: "cec_3",          function: &cec_3,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
-  { name: "cec_4",          function: &cec_4,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
-  { name: "cec_5",          function: &cec_5,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION               },
-  { name: "cec_6",          function: &cec_6,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION               },
-  { name: "cec_7",          function: &cec_7,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION               },
-  { name: "cec_8",          function: &cec_8,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
-  { name: "cec_9",          function: &cec_9,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
-  { name: "cec_10",         function: &cec_10,          lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
+  { name: "cec_1",          function: cec_1,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
+  { name: "cec_2",          function: cec_2,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
+  { name: "cec_3",          function: cec_3,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
+  { name: "cec_4",          function: cec_4,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
+  { name: "cec_5",          function: cec_5,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION               },
+  { name: "cec_6",          function: cec_6,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION               },
+  { name: "cec_7",          function: cec_7,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION               },
+  { name: "cec_8",          function: cec_8,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
+  { name: "cec_9",          function: cec_9,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
+  { name: "cec_10",         function: cec_10,          lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
 #endif
 };
 
@@ -403,4 +405,5 @@ TEST_CASE(bentcigar)
 }
 #undef POW2
 #undef AGTPOS
+#endif
 #endif

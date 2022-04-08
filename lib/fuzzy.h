@@ -12,8 +12,6 @@
 #define NO_CONTROL BIT(31)
 #define NELEMENTS 8
 
-internal
-f64(*maxormin[2])(f64 x, f64 y) = {fmax, fmin};
 
 // Représente le contrôlleur dans les tables de permutations
 union Controller {
@@ -52,6 +50,10 @@ u32
 rule_from_points(union Controller);
 
 #if defined(FUZZY_IMPLEMENTATION)
+
+internal
+f64(*maxormin[2])(f64 x, f64 y) = {fmax, fmin};
+
 str*
 cli2controller(str* argv, union Controller* controller)
 {

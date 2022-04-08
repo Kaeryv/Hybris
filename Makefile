@@ -1,14 +1,16 @@
+include config.mk
 #
 # Makefile for unity build (single translation unit) of hybris library.
 #
-LIBNAME=hybris
 ifeq ($(OS),Windows_NT) 
     DETECTED_OS := Windows
-	TARGET=./bin/win64/
-	CFLAGS+= -mconsole
+    TARGET:=win64
+    CFLAGS+= -mconsole
+    DIR_CMD:= mkdir
 else
     DETECTED_OS := $(shell sh -c 'uname 2>/dev/null || echo Unknown')
-	TARGET=./bin/unix/
+    TARGET:=unix
+    DIR_CMD:= mkdir -p
 endif
 
 ifeq ($(RELMODE), Release)
@@ -18,20 +20,29 @@ else ifeq ($(RELMODE), RelWDbgInfo)
 endif
 
 
+prepare:
+	${DIR_CMD} ./bin/${TARGET}/obj/
+	${DIR_CMD} ./bin/${TARGET}/obj/
 
-shared:
-	gcc -shared lib/lib.c -fPIC -o ${TARGET}/lib${LIBNAME}.so -fmax-errors=1 -Wall -DPSO_EVEN_MORE_COMBINATIONS
+shared: prepare
+	gcc -shared lib/lib.c -fPIC -o ./bin/${TARGET}/lib${LIBNAME}.so -fmax-errors=1 -Wall -DPSO_EVEN_MORE_COMBINATIONS
 
-static:
-	gcc -c lib/lib.c -fPIC -o temp.o -fmax-errors=1 -Wall -DPSO_EVEN_MORE_COMBINATIONS ${CFLAGS}
-	ar rcs ${TARGET}/lib${LIBNAME}.a temp.o
+static: prepare
+	gcc -c lib/lib.c -fPIC -o ./bin/${TARGET}/obj/temp.o -fmax-errors=1 -Wall -DPSO_EVEN_MORE_COMBINATIONS ${CFLAGS}
+	ar rcs ./bin/${TARGET}/lib${LIBNAME}.a ./bin/${TARGET}/obj/temp.o
 
 standalone: static
-	gcc standalones/prog_${PROGRAM}.c ${TARGET}/lib${LIBNAME}.a -o ${TARGET}/${PROGRAM}.exe -I ./lib/
+	gcc standalones/prog_${PROGRAM}.c ./bin/${TARGET}/lib${LIBNAME}.a -o ./bin/${TARGET}/${PROGRAM}.exe -I ./lib/
+
+install:
+	${DIR_CMD} ${PREFIX}/include/
+	${DIR_CMD} ${PREFIX}/lib/
+	cp lib/*.h ${PREFIX}/include/
+	cp bin/unix/libhybris.a ${PREFIX}/lib/
 
 
 clean:
-	rm -fr ${LIBNAME}
+	rm -fr ./bin/
 	rm -fr hybris/__pycache__/
 	rm -fr __pycache__/
 
@@ -47,4 +58,4 @@ venv/touchfile: requirements.txt
 purge: clean
 	rm -fr env/ lib/*.so
 
-.PHONY: lib
+.PHONY: lib stage

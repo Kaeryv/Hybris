@@ -14,12 +14,11 @@
 
 #include "core.h"
 
-#define INF 1.0e99
-#define EPS 1.0e-14
-#define E  2.7182818284590452353602874713526625
-#define PI 3.1415926535897932384626433832795029
 
-const char conf_cec_data[] = "db/input_data_cec";
+struct fun_state {
+  struct pcg32_random *prng;
+  struct cecbench_state *cecglobals;
+};
 
 #define CEC_TEST_CASE(X)\
   void X (const f64 *noalias x,     \
@@ -122,6 +121,13 @@ struct cecbench_state {
 
 */
 #ifdef CECBENCH_IMPLEMENTATION
+#define CEC_INF 1.0e99
+#define CEC_EPS 1.0e-14
+#define CEC_EULER  2.7182818284590452353602874713526625
+#define CEC_PI 3.1415926535897932384626433832795029
+
+const char conf_cec_data[] = "db/input_data_cec";
+
 subroutine
 cecbench_state_init(struct cecbench_state *state)
 {
@@ -537,15 +543,15 @@ CEC_TEST_CASE(levy_func)
 	   w[i] = 1.0 + (z[i] - 1.0)/4.0;
 	}
 	
-	double term1 = pow((sin(PI*w[0])),2);
-	double term3 = pow((w[nx-1]-1),2) * (1+pow((sin(2*PI*w[nx-1])),2));
+	double term1 = pow((sin(CEC_PI*w[0])),2);
+	double term3 = pow((w[nx-1]-1),2) * (1+pow((sin(2*CEC_PI*w[nx-1])),2));
 	
 	double sum = 0.0;
 
 	for (i=0; i<nx-1; i++)
 	{
 		double wi = w[i];
-        double newv = pow((wi-1),2) * (1+10*pow((sin(PI*wi+1)),2));
+        double newv = pow((wi-1),2) * (1+10*pow((sin(CEC_PI*wi+1)),2));
 		sum = sum + newv;
 	}
 	
@@ -654,11 +660,11 @@ CEC_TEST_CASE(ackley_func)
 	for (i=0; i<nx; i++)
 	{
 		sum1 += z[i]*z[i];
-		sum2 += cos(2.0*PI*z[i]);
+		sum2 += cos(2.0*CEC_PI*z[i]);
 	}
 	sum1 = -0.2*sqrt(sum1/nx);
 	sum2 /= nx;
-		f[0] =  E - 20.0*exp(sum1) - exp(sum2) +20.0;
+		f[0] =  CEC_EULER - 20.0*exp(sum1) - exp(sum2) +20.0;
 }
 
 
@@ -679,8 +685,8 @@ CEC_TEST_CASE(weierstrass_func)
 		sum2 = 0.0;
 		for (j=0; j<=k_max; j++)
 		{
-			sum += pow(a,j)*cos(2.0*PI*pow(b,j)*(z[i]+0.5));
-			sum2 += pow(a,j)*cos(2.0*PI*pow(b,j)*0.5);
+			sum += pow(a,j)*cos(2.0*CEC_PI*pow(b,j)*(z[i]+0.5));
+			sum2 += pow(a,j)*cos(2.0*CEC_PI*pow(b,j)*0.5);
 		}
 		f[0] += sum;
 	}
@@ -714,7 +720,7 @@ CEC_TEST_CASE(rastrigin_func)
 
 	for (i=0; i<nx; i++)
 	{
-		f[0] += (z[i]*z[i] - 10.0*cos(2.0*PI*z[i]) + 10.0);
+		f[0] += (z[i]*z[i] - 10.0*cos(2.0*CEC_PI*z[i]) + 10.0);
 	}
 }
 
@@ -732,7 +738,7 @@ CEC_TEST_CASE(step_rastrigin_func)
 
 	for (i=0; i<nx; i++)
 	{
-		f[0] += (z[i]*z[i] - 10.0*cos(2.0*PI*z[i]) + 10.0);
+		f[0] += (z[i]*z[i] - 10.0*cos(2.0*CEC_PI*z[i]) + 10.0);
 	}
 }
 
@@ -842,7 +848,7 @@ CEC_TEST_CASE(bi_rastrigin_func)
 		rotatefunc(z, y, nx, Mr);
 		for (i=0; i<nx; i++)
 		{
-			tmp+=cos(2.0*PI*y[i]);
+			tmp+=cos(2.0*CEC_PI*y[i]);
 		}	
 		if(tmp1<tmp2)
 			f[0] = tmp1;
@@ -854,7 +860,7 @@ CEC_TEST_CASE(bi_rastrigin_func)
 	{
 		for (i=0; i<nx; i++)
 		{
-			tmp+=cos(2.0*PI*z[i]);
+			tmp+=cos(2.0*CEC_PI*z[i]);
 		}	
 		if(tmp1<tmp2)
 			f[0] = tmp1;
@@ -1753,7 +1759,7 @@ void cf_cal(const double *x, double *f, int nx, double *Os,double * delta,double
 		if (w[i]!=0)
 			w[i]=pow(1.0/w[i],0.5)*exp(-w[i]/2.0/nx/pow(delta[i],2.0));
 		else
-			w[i]=INF;
+			w[i]=CEC_INF;
 		if (w[i]>w_max)
 			w_max=w[i];
 	}

@@ -1,10 +1,6 @@
 #ifndef INCLUDE_PSO_H
 #define INCLUDE_PSO_H
 
-#include <stdlib.h>
-#include <math.h>
-#include <stdint.h>
-
 #include "arrtools.h"
 #include "random.h"
 

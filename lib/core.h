@@ -1,14 +1,6 @@
 #ifndef CORE_MODULE
 #define CORE_MODULE
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <math.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
 
 typedef double   f64;
 typedef float    f32;

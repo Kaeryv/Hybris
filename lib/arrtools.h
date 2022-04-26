@@ -1,10 +1,5 @@
 #pragma once
 
-#include "core.h"
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
-
 f64
 arr_f64_sum(f64 *arr, u32 len);
 

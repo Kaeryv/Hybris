@@ -1,4 +1,18 @@
+#include <math.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <limits.h>
+#include <string.h>
+#include <stdlib.h>
+
 #include "core.h"
+
 
 #define ARRTOOLS_IMPLEMENTATION
 #include "arrtools.h"

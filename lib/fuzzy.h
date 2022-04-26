@@ -1,11 +1,3 @@
-#include <stdio.h>
-#include <stdbool.h>
-#include <assert.h>
-#include <stdint.h>
-#include <limits.h>
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
 
 #include "core.h"
 

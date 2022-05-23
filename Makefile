@@ -17,6 +17,8 @@ ifeq ($(RELMODE), Release)
 	CFLAGS+= -O3 -march=native -DNDEBUG
 else ifeq ($(RELMODE), RelWDbgInfo)
 	CFLAGS+= -O3 -march=native -DNDEBUG -DLOGLEVEL_INFO
+else ifeq ($(RELMODE), RelPortable)
+	CFLAGS+= -O2 -DNDEBUG -DLOGLEVEL_INFO
 endif
 
 
@@ -25,14 +27,14 @@ prepare:
 	${DIR_CMD} ./bin/${TARGET}/obj/
 
 shared: prepare
-	gcc -shared lib/lib.c -fPIC -o ./bin/${TARGET}/lib${LIBNAME}.so -fmax-errors=1 -Wall -DPSO_EVEN_MORE_COMBINATIONS
+	gcc -shared lib/lib.c -fPIC -o ./bin/${TARGET}/lib${LIBNAME}.so -fmax-errors=1 -Wall -DPSO_EVEN_MORE_COMBINATIONS ${CFLAGS}
 
 static: prepare
 	gcc -c lib/lib.c -fPIC -o ./bin/${TARGET}/obj/temp.o -fmax-errors=1 -Wall -DPSO_EVEN_MORE_COMBINATIONS ${CFLAGS}
 	ar rcs ./bin/${TARGET}/lib${LIBNAME}.a ./bin/${TARGET}/obj/temp.o
 
 standalone: static
-	gcc standalones/prog_${PROGRAM}.c ./bin/${TARGET}/lib${LIBNAME}.a -o ./bin/${TARGET}/${PROGRAM}.exe -I ./lib/
+	gcc standalones/prog_${PROGRAM}.c ./bin/${TARGET}/lib${LIBNAME}.a -o ./bin/${TARGET}/${PROGRAM}.exe -I ./lib/ -lm
 
 install:
 	${DIR_CMD} ${PREFIX}/include/
@@ -57,5 +59,8 @@ venv/touchfile: requirements.txt
 
 purge: clean
 	rm -fr env/ lib/*.so
+
+python_dist:
+	python setup.py bdist_wheel
 
 .PHONY: lib stage

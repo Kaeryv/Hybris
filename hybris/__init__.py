@@ -1,10 +1,21 @@
 import sys
+from pathlib import Path
+import os
+_main_mod = sys.modules['__main__']
+_running_from_repl = '__file__' not in dir(_main_mod)
+
 _platform = sys.platform
 _lib_filename = {
-    'win32': './bin/win64/libhybris.so',
-    'linux': './bin/unix/libhybris.so',
+    'win32': 'bin/win64/libhybris.so',
+    'linux': 'bin/unix/libhybris.so',
 }
-lib_name = _lib_filename[_platform]
+
+if not _running_from_repl:
+    lib_dir = os.getcwd() + "/"
+    lib_name = lib_dir + _lib_filename[_platform]
+else:
+    this_mod = sys.modules[__name__]
+    lib_name = Path(this_mod.__file__).parent / "libhybris.so"
 
 # Load the precompiled C code
 from ctypes import CDLL

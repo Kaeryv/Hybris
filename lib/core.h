@@ -1,7 +1,7 @@
 #ifndef CORE_MODULE
 #define CORE_MODULE
 
-
+#include <stdint.h>
 typedef double   f64;
 typedef float    f32;
 

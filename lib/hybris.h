@@ -7,7 +7,7 @@ extern "C" {
 #include "random.h"
 #include "cnpy.h"
 #include "fuzzy.h"
-#define HYBRIS_DISABLE_TESTCASES
+//#define HYBRIS_DISABLE_TESTCASES
 //#include "cecbench.h"
 #include "functions.h"
 #include "pso.h"

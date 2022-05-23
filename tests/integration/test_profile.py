@@ -5,7 +5,7 @@ from hybris.profiling import profile_configurations
 res = profile_configurations([([], "0000000")], max_workers=12, endresult=True)
 print(",\n".join(map(str, res.mean(axis=-1).flat)))
 import numpy as np
-a = np.load("tmp.npy")
-np.testing.assert_allclose(a, res)
 print(res.shape)
 #np.save("tmp.npy", res)
+a = np.load("tmp.npy")
+np.testing.assert_allclose(a, res)

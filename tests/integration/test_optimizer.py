@@ -15,6 +15,6 @@ while not optim.stop():
 stop = time.time_ns()
 print(f"Done in {(stop-start)/1e6} ms.")
 
-import matplotlib.pyplot as plt
-plt.plot(optim.profile)
-plt.show()
+#import matplotlib.pyplot as plt
+#plt.plot(optim.profile)
+#plt.show()

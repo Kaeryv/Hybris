@@ -1,25 +1,17 @@
 import sys
 from pathlib import Path
 import os
-_main_mod = sys.modules['__main__']
-_running_from_repl = '__file__' not in dir(_main_mod)
 
-_platform = sys.platform
-_lib_filename = {
-    'win32': 'bin/win64/libhybris.so',
-    'linux': 'bin/unix/libhybris.so',
-}
-
-if not _running_from_repl:
-    lib_dir = os.getcwd() + "/"
-    lib_name = lib_dir + _lib_filename[_platform]
+if "HYBRIS_BINARY_PATH" in os.environ:
+    HYBRIS_BINARY_PATH = os.environ["HYBRIS_BINARY_PATH"]
 else:
-    this_mod = sys.modules[__name__]
-    lib_name = Path(this_mod.__file__).parent / "libhybris.so"
+    _this_mod = sys.modules[__name__]
+    HYBRIS_BINARY_PATH = Path(_this_mod.__file__).parent / "lib/libhybris.so"
+    print("Using Hybris Binary from {}".format(HYBRIS_BINARY_PATH))
 
 # Load the precompiled C code
 from ctypes import CDLL
-_lhybris = CDLL(str(lib_name))
+_lhybris = CDLL(str(HYBRIS_BINARY_PATH))
 
 from enum import IntEnum
 class Parameter(IntEnum):

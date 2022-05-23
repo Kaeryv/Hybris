@@ -6,11 +6,9 @@ ifeq ($(OS),Windows_NT)
     DETECTED_OS := Windows
     TARGET:=win64
     CFLAGS+= -mconsole
-    DIR_CMD:= mkdir
 else
     DETECTED_OS := $(shell sh -c 'uname 2>/dev/null || echo Unknown')
     TARGET:=unix
-    DIR_CMD:= mkdir -p
 endif
 
 ifeq ($(RELMODE), Release)
@@ -23,8 +21,8 @@ endif
 
 
 prepare:
-	${DIR_CMD} ./bin/${TARGET}/obj/
-	${DIR_CMD} ./bin/${TARGET}/obj/
+	$(call mkdir, ./bin/${TARGET}/obj) 
+	
 
 shared: prepare
 	gcc -shared lib/lib.c -fPIC -o ./bin/${TARGET}/lib${LIBNAME}.so -fmax-errors=1 -Wall -DPSO_EVEN_MORE_COMBINATIONS ${CFLAGS}
@@ -37,16 +35,10 @@ standalone: static
 	gcc standalones/prog_${PROGRAM}.c ./bin/${TARGET}/lib${LIBNAME}.a -o ./bin/${TARGET}/${PROGRAM}.exe -I ./lib/ -lm
 
 install:
-	${DIR_CMD} ${PREFIX}/include/
-	${DIR_CMD} ${PREFIX}/lib/
+	$(call mkdir, ${PREFIX}/include/)
+	$(call mkdir, ${PREFIX}/lib/)
 	cp lib/*.h ${PREFIX}/include/
 	cp bin/unix/libhybris.a ${PREFIX}/lib/
-
-
-clean:
-	rm -fr ./bin/
-	rm -fr hybris/__pycache__/
-	rm -fr __pycache__/
 
 
 venv: venv/touchfile
@@ -57,10 +49,11 @@ venv/touchfile: requirements.txt
 	touch venv/touchfile
 	find -iname "*.pyc" -delete
 
-purge: clean
-	rm -fr env/ lib/*.so
-
 python_dist:
 	python setup.py bdist_wheel
 
 .PHONY: lib stage
+
+
+distribute:
+	python setup.py bdist_wheel --universal

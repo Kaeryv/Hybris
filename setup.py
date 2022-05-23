@@ -1,6 +1,7 @@
 import sys
 from setuptools import setup, find_packages
-from os import path
+from os import path, makedirs
+from shutil import copy
 
 here = path.abspath(path.dirname(__file__))
 platform = sys.platform
@@ -10,12 +11,15 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 # install only the system's corresponding lib
+makedirs("./hybris/lib", exist_ok=True)
 if platform == 'win32':
-    package_data = ['libhybris.so']
+    copy("./bin/win64/libhybris.so", "./hybris/lib/libhybris.so")
+    package_data = ['lib/libhybris.so']
 #elif platform == 'darwin':
 #    package_data = ['libraylib.2.0.0.dylib']
 elif platform.startswith('linux') or platform == 'linux':
-    package_data = ['libhybris.so']
+    copy("./bin/unix/libhybris.so", "./hybris/lib/libhybris.so")
+    package_data = ['lib/libhybris.so']
 else:
     assert False, "ERROR"
     ## or install all if the above fails
@@ -61,11 +65,11 @@ setup(
 
     packages=['hybris'],
     install_requires=requirements,
-
+    #include_package_data=True,
     package_data={ 
         'hybris': package_data,
     },
-
+ 
     project_urls={  # Optional
         'Bug Reports': 'https://github.com/kaeryv/hybris/issues',
         'Source': 'https://github.com/kaeryv/hybris/',

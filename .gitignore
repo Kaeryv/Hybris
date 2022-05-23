@@ -16,3 +16,8 @@ __pycache__/
 *.dll
 *.lib
 *.exe
+*.txt
+PKG-INFO
+*.whl
+build/
+bin/

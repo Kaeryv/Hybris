@@ -105,7 +105,7 @@ typedef struct  {
     f64             lower_bound;
     f64             upper_bound;
 
-    struct pcg32_random *prng;
+    pcg32_random_t *prng;
 } registry_t;
 
 registry_t*
@@ -328,7 +328,7 @@ registry_create (i32 num_agents, i32 num_dimensions, i32 num_discrete_dimensions
   reg->profile        = calloc(max_iterations,                sizeof(f64));
   
   // Set-up th PRNG
-  reg->prng           = Alloc(struct pcg32_random);
+  reg->prng           = Alloc(pcg32_random_t);
   reg->prng->state    = 0x853c49e6748fea9bULL;
   reg->prng->inc      = 0xda3e39cb94b95bdbULL;
 
@@ -747,9 +747,13 @@ reg_minimize_problem(registry_t* reg, TestCase test_case, u32 seed)
   reg->lower_bound = test_case.lower;
   reg->upper_bound = test_case.upper;
   registry_init(reg, seed);
+  #ifdef ADD_CECBENCHMARK
   struct cecbench_state cstate;
   cecbench_state_init(&cstate);
   struct fun_state state = { .prng = reg->prng, .cecglobals=&cstate};
+  #else
+  fun_state state = { .prng = reg->prng};
+  #endif
   while(reg->cur_iteration < reg->max_iterations) {
     reg_update_population(reg);
     test_case.function(reg->position, reg->num_agents, reg->num_dimensions, reg->aptitude, state);

@@ -26,8 +26,10 @@
 #define FUZZY_IMPLEMENTATION
 #include "fuzzy.h"
 
+#ifdef ADD_CECBENCHMARK
 #define CECBENCH_IMPLEMENTATION
 #include "cecbench.h"
+#endif
 
 #define FUNCTIONS_IMPLEMENTATION
 #include "functions.h"

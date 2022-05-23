@@ -16,7 +16,7 @@ ifeq ($(RELMODE), Release)
 else ifeq ($(RELMODE), RelWDbgInfo)
 	CFLAGS+= -O3 -march=native -DNDEBUG -DLOGLEVEL_INFO
 else ifeq ($(RELMODE), RelPortable)
-	CFLAGS+= -O2 -DNDEBUG -DLOGLEVEL_INFO
+	CFLAGS+= -O2 -DNDEBUG 
 endif
 
 

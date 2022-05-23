@@ -4,12 +4,14 @@
 
 // If cec module is present, this struct is overriden.
 #ifndef CECBENCH_MODULE
-struct fun_state {
-  struct pcg32_random *prng;
-};
+typedef struct  {
+  pcg32_random_t *prng;
+} fun_state;
+#else
+#warning Using CECBENCHMARK
 #endif
 
-typedef void (*testcase_t)(const f64*, const i32, const i32, f64*, struct fun_state state);
+typedef void (*testcase_t)(const f64*, const i32, const i32, f64*, fun_state state);
 
 typedef struct {
   const char * name;
@@ -27,7 +29,7 @@ typedef struct {
           const i32 num_agents, \
           const i32 num_dimensions, \
           f64 *noalias aptitude,\
-          struct fun_state state)
+          fun_state state)
 
 
 #define POW2(X) ((X)*(X))
@@ -40,7 +42,7 @@ typedef struct {
   void cec_##N(const f64 *noalias x,\
                const i32 na, const i32 nd,\
                f64* f,\
-               struct fun_state state)\
+               fun_state state)\
   {\
     cec20_test_func(x, f, nd, na, N, state.cecglobals);\
   }
@@ -48,7 +50,7 @@ typedef struct {
   void cec_##N(const f64 *noalias x,\
                const i32 na, const i32 nd,\
                f64* f,\
-               struct fun_state state)
+               fun_state state)
   
 
 #endif
@@ -320,13 +322,15 @@ TEST_CASE(xinsheyang2)
 
 TEST_CASE(xinsheyang1) 
 { 
+  float rng = (pcg32_random(state.prng) % 100000) / (100000.-1.);
   for (i32 i = 0; i < num_agents; i++)
   {
     f64 f = 0.0;
     for (i32 j = 0; j < num_dimensions; j++)
     {
       i32 index = i * num_dimensions + j;
-      f += pcg32_random(state.prng)  * AbsoluteValue(pow(x[index], j/10));
+      
+      f += rng  * AbsoluteValue(pow(x[index], j/10));
     }
     aptitude[i] = f;
   }

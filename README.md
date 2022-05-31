@@ -1,13 +1,9 @@
-# Hybris Particle Swarm Optimizer
-## Installation and compilation
+# Hybris-Python
 
-Go to this file's directory and run
-```bash
-make static
+## Installation
+
+```
+$ pip install hybris-py
 ```
 
-To run one of the example C programs
-```bash
-make prog PROGRAM=metaoptimize RELMODE=Release
-./bin/<win64 or unix>/metaoptimize.exe
-```
+

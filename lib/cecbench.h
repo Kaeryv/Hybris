@@ -14,11 +14,17 @@
 
 #include "core.h"
 
+// =========== OVERRIDES =============
+// These are overrides for functions.h
 
 struct fun_state {
   struct pcg32_random *prng;
   struct cecbench_state *cecglobals;
 };
+
+volatile int cec_bench_present = true;
+
+// End of overrides
 
 #define CEC_TEST_CASE(X)\
   void X (const f64 *noalias x,     \

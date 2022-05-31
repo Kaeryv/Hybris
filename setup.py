@@ -2,30 +2,16 @@ import sys
 from setuptools import setup, find_packages
 from os import path, makedirs
 from shutil import copy
+import platform
 
 here = path.abspath(path.dirname(__file__))
-platform = sys.platform
 
-# Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-# install only the system's corresponding lib
 makedirs("./hybris/lib", exist_ok=True)
-if platform == 'win32':
-    copy("./bin/win64/libhybris.so", "./hybris/lib/libhybris.so")
-    package_data = ['lib/libhybris.so']
-#elif platform == 'darwin':
-#    package_data = ['libraylib.2.0.0.dylib']
-elif platform.startswith('linux') or platform == 'linux':
-    copy("./bin/unix/libhybris.so", "./hybris/lib/libhybris.so")
-    package_data = ['lib/libhybris.so']
-else:
-    assert False, "ERROR"
-    ## or install all if the above fails
-    #package_data = ['libraylib_shared.dll',
-    #                 'libraylib.so.2.0.0',
-    #                 'libraylib.2.0.0.dylib']
+copy(f"./bin/{platform.system()}/libhybris.so", "./hybris/lib/libhybris.so")
+package_data = ['lib/libhybris.so']
 
 py_ver = sys.version_info
 requirements = []
@@ -34,14 +20,9 @@ if py_ver[1] < 5:
 if py_ver[1] < 4:
     requirements.append('enum')
 
-# Arguments marked as "Required" below must be included for upload to PyPI.
-# Fields marked as "Optional" may be commented out.
-
 setup(
-    name='hybris-py',  # Required
-    # Versions should comply with PEP 440:
-    # https://www.python.org/dev/peps/pep-0440/
-    version='0.1.1',  # Required
+    name='hybris-py',
+    version='0.1.1',
     python_requires='>=3.3, <4',
     description='A Python binding for Hybris PSO Optimizer',
     long_description=long_description,
@@ -65,7 +46,6 @@ setup(
 
     packages=['hybris'],
     install_requires=requirements,
-    #include_package_data=True,
     package_data={ 
         'hybris': package_data,
     },

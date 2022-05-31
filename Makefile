@@ -4,11 +4,11 @@ include config.mk
 #
 ifeq ($(OS),Windows_NT) 
     DETECTED_OS := Windows
-    TARGET:=win64
+    TARGET:=Windows
     CFLAGS+= -mconsole
 else
     DETECTED_OS := $(shell sh -c 'uname 2>/dev/null || echo Unknown')
-    TARGET:=unix
+    TARGET:=Linux
 endif
 
 ifeq ($(RELMODE), Release)
@@ -38,7 +38,7 @@ install:
 	$(call mkdir, ${PREFIX}/include/)
 	$(call mkdir, ${PREFIX}/lib/)
 	cp lib/*.h ${PREFIX}/include/
-	cp bin/unix/libhybris.a ${PREFIX}/lib/
+	cp bin/${TARGET}/libhybris.a ${PREFIX}/lib/
 
 
 venv: venv/touchfile
@@ -57,3 +57,7 @@ python_dist:
 
 distribute:
 	python setup.py bdist_wheel --universal
+
+clean:
+	rm -rf hybris_py.egg-info
+	rm -rf dist bin build

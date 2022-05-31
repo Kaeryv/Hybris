@@ -25,7 +25,7 @@ typedef struct {
 #ifndef HYBRIS_DISABLE_TESTCASES
 
 #define TEST_CASE(X) \
-  void X (const f64 *noalias x, \
+  extern void X (const f64 *noalias x, \
           const i32 num_agents, \
           const i32 num_dimensions, \
           f64 *noalias aptitude,\
@@ -132,6 +132,11 @@ global TestCase test_cases_map[] = {
 };
 
 #ifdef FUNCTIONS_IMPLEMENTATION
+#ifndef CECBENCH_MODULE
+volatile int cec_bench_present = false;
+#else
+#warning Using CECBENCHMARK
+#endif
 
 #ifdef CECBENCH_MODULE
 IMPL_CEC_WRAPPER(1)

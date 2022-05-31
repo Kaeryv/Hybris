@@ -1,13 +1,19 @@
 import sys
 from pathlib import Path
 import os
+import platform
+
+HYBRIS_DEVLIB_PATH=f"./bin/{platform.system()}/libhybris.so"
 
 if "HYBRIS_BINARY_PATH" in os.environ:
     HYBRIS_BINARY_PATH = os.environ["HYBRIS_BINARY_PATH"]
+elif os.path.isfile(HYBRIS_DEVLIB_PATH):
+    HYBRIS_BINARY_PATH = HYBRIS_DEVLIB_PATH
 else:
     _this_mod = sys.modules[__name__]
     HYBRIS_BINARY_PATH = Path(_this_mod.__file__).parent / "lib/libhybris.so"
-    print("Using Hybris Binary from {}".format(HYBRIS_BINARY_PATH))
+
+print("Using Hybris Binary from {}".format(HYBRIS_BINARY_PATH))
 
 # Load the precompiled C code
 from ctypes import CDLL
@@ -161,11 +167,15 @@ C_INTERFACE = {
     "pcg32_random_seed":                   FunSig(None,         [POINTER(CPRNG), c_uint64]),
     "set_range_weight":                    FunSig(None,         [c_int32, c_double, c_double, c_double]),
     "set_default_weight":                  FunSig(None,         [c_int32, c_double]),
-    "cecbench_state_init":                 FunSig(None,         [POINTER(CECState)]),
-    "cecbench_state_free":                 FunSig(None,         [POINTER(CECState)]),
     "reg_set_num_categories":              FunSig(None,         [CRegistryPtr, c_int32, c_int32]),
     "reg_minimize_problem":                FunSig(None,         [CRegistryPtr, CTestCase, c_uint32]),
 }
+
+if _lhybris.cec_bench_present is True:
+    C_INTERFACE.update({
+        "cecbench_state_init":                 FunSig(None,         [POINTER(CECState)]),
+        "cecbench_state_free":                 FunSig(None,         [POINTER(CECState)]),
+        })
 
 ''' A wrapper to implement verification/debugging of C API calls '''
 def caller(c_fun, *args):

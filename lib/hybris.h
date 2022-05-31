@@ -7,8 +7,9 @@ extern "C" {
 #include "random.h"
 #include "cnpy.h"
 #include "fuzzy.h"
-//#define HYBRIS_DISABLE_TESTCASES
-//#include "cecbench.h"
+#ifdef ADD_CECBENCHMARK
+#include "cecbench.h"
+#endif
 #include "functions.h"
 #include "pso.h"
 #ifdef __cplusplus

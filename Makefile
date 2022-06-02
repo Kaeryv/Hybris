@@ -1,15 +1,22 @@
-include config.mk
 #
-# Makefile for unity build (single translation unit) of hybris library.
+# Makefile for unity build of hybris library.
 #
 
-CFLAGS+=-Wno-gnu-designator
+include config.mk
+
+CFLAGS+=-Wall -Wno-gnu-designator -DPSO_EVEN_MORE_COMBINATIONS 
 
 ifeq ($(OS),Windows_NT) 
     TARGET:=Windows
     CFLAGS+= -mconsole
 else
     TARGET := $(shell sh -c 'uname 2>/dev/null || echo Unknown')
+endif
+
+ifeq ($(CC),clang)
+    CFLAGS+= -ferror-limit=1
+else
+    CFLAGS+= -fmax-errors=1
 endif
 
 ifeq ($(RELMODE), Release)
@@ -31,14 +38,14 @@ prepare:
 	
 
 shared: prepare
-	gcc -shared src/lib.c -fPIC -o ./bin/${TARGET}/lib${LIBNAME}.so -fmax-errors=1 -Wall -DPSO_EVEN_MORE_COMBINATIONS ${CFLAGS}
+	$(CC) -shared src/lib.c -fPIC -o ./bin/${TARGET}/lib${LIBNAME}.so ${CFLAGS}
 
 static: prepare
-	gcc -c src/lib.c -fPIC -o ./bin/${TARGET}/obj/temp.o -fmax-errors=1 -Wall -DPSO_EVEN_MORE_COMBINATIONS ${CFLAGS}
+	$(CC) -c src/lib.c -fPIC -o ./bin/${TARGET}/obj/temp.o ${CFLAGS}
 	ar rcs ./bin/${TARGET}/lib${LIBNAME}.a ./bin/${TARGET}/obj/temp.o
 
 standalone: static
-	gcc standalones/prog_${PROGRAM}.c ./bin/${TARGET}/lib${LIBNAME}.a -o ./bin/${TARGET}/${PROGRAM}.exe -I ./src/ -lm $(CFLAGS)
+	$(CC) standalones/prog_${PROGRAM}.c ./bin/${TARGET}/lib${LIBNAME}.a -o ./bin/${TARGET}/${PROGRAM}.exe -I ./src/ -lm $(CFLAGS)
 
 install:
 	$(call mkdir, ${PREFIX}/include/)

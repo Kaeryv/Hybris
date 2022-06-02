@@ -29,7 +29,7 @@ test(f64 *x, u32 num_agents, u32 num_dimensions, f64 *aptitude, pcg32_random_t *
         }
         for_range(k, get_num_filtered_testcases(TRAINING)){
             reg1->controllers[0] = rule_from_points(crtl);
-            reg1->controllers[3] = rule_from_points(crtl2);
+            reg1->controllers[4] = rule_from_points(crtl2);
             reg1->upper_bound = problems[k].upper;
             reg1->lower_bound = problems[k].lower;
             registry_init(reg1, 42);

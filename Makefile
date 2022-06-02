@@ -2,13 +2,14 @@ include config.mk
 #
 # Makefile for unity build (single translation unit) of hybris library.
 #
+
+CFLAGS+=-Wno-gnu-designator
+
 ifeq ($(OS),Windows_NT) 
-    DETECTED_OS := Windows
     TARGET:=Windows
     CFLAGS+= -mconsole
 else
-    DETECTED_OS := $(shell sh -c 'uname 2>/dev/null || echo Unknown')
-    TARGET:=Linux
+    TARGET := $(shell sh -c 'uname 2>/dev/null || echo Unknown')
 endif
 
 ifeq ($(RELMODE), Release)
@@ -19,25 +20,30 @@ else ifeq ($(RELMODE), RelPortable)
 	CFLAGS+= -O2 -DNDEBUG 
 endif
 
+.PHONY: prepare
 
-prepare:
-	$(call mkdir, ./bin/${TARGET}/obj) 
+
+all: prepare static shared
+
+prepare: 
+	@echo "Building for $(TARGET)"
+	mkdir -p ./bin/${TARGET}/obj
 	
 
 shared: prepare
-	gcc -shared lib/lib.c -fPIC -o ./bin/${TARGET}/lib${LIBNAME}.so -fmax-errors=1 -Wall -DPSO_EVEN_MORE_COMBINATIONS ${CFLAGS}
+	gcc -shared src/lib.c -fPIC -o ./bin/${TARGET}/lib${LIBNAME}.so -fmax-errors=1 -Wall -DPSO_EVEN_MORE_COMBINATIONS ${CFLAGS}
 
 static: prepare
-	gcc -c lib/lib.c -fPIC -o ./bin/${TARGET}/obj/temp.o -fmax-errors=1 -Wall -DPSO_EVEN_MORE_COMBINATIONS ${CFLAGS}
+	gcc -c src/lib.c -fPIC -o ./bin/${TARGET}/obj/temp.o -fmax-errors=1 -Wall -DPSO_EVEN_MORE_COMBINATIONS ${CFLAGS}
 	ar rcs ./bin/${TARGET}/lib${LIBNAME}.a ./bin/${TARGET}/obj/temp.o
 
 standalone: static
-	gcc standalones/prog_${PROGRAM}.c ./bin/${TARGET}/lib${LIBNAME}.a -o ./bin/${TARGET}/${PROGRAM}.exe -I ./lib/ -lm
+	gcc standalones/prog_${PROGRAM}.c ./bin/${TARGET}/lib${LIBNAME}.a -o ./bin/${TARGET}/${PROGRAM}.exe -I ./src/ -lm $(CFLAGS)
 
 install:
 	$(call mkdir, ${PREFIX}/include/)
-	$(call mkdir, ${PREFIX}/lib/)
-	cp lib/*.h ${PREFIX}/include/
+	$(call mkdir, ${PREFIX}/src/)
+	cp src/*.h ${PREFIX}/include/
 	cp bin/${TARGET}/libhybris.a ${PREFIX}/lib/
 
 
@@ -52,7 +58,6 @@ venv/touchfile: requirements.txt
 python_dist:
 	python setup.py bdist_wheel
 
-.PHONY: lib stage
 
 
 distribute:
@@ -61,3 +66,4 @@ distribute:
 clean:
 	rm -rf hybris_py.egg-info
 	rm -rf dist bin build
+

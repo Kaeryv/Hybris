@@ -14,7 +14,8 @@ copy(f"./bin/{platform.system()}/libhybris.so", "./hybris/lib/libhybris.so")
 package_data = ['lib/libhybris.so']
 
 py_ver = sys.version_info
-requirements = []
+with open("requirements.txt", "r") as f:
+    requirements = list(f.readlines())
 if py_ver[1] < 5:
     requirements.append('typing')
 if py_ver[1] < 4:

@@ -26,7 +26,9 @@ else ifeq ($(RELMODE), RelWDbgInfo)
 else ifeq ($(RELMODE), RelPortable)
 	CFLAGS+= -O2 -DNDEBUG 
 endif
-
+ifeq ($(CEC_BECNHMARK), True)
+	CFLAGS+=-DADD_CECBENCHMARK
+endif
 .PHONY: prepare
 
 
@@ -48,26 +50,25 @@ standalone: static
 	$(CC) standalones/prog_${PROGRAM}.c ./bin/${TARGET}/lib${LIBNAME}.a -o ./bin/${TARGET}/${PROGRAM}.exe -I ./src/ -lm $(CFLAGS)
 
 install:
-	$(call mkdir, ${PREFIX}/include/)
-	$(call mkdir, ${PREFIX}/src/)
+	mkdir -p ${PREFIX}/include
+	mkdir -p ${PREFIX}/lib
 	cp src/*.h ${PREFIX}/include/
 	cp bin/${TARGET}/libhybris.a ${PREFIX}/lib/
 
+tarball:
+	mkdir -p hybris_tarball
+	cp -r hybris           hybris_tarball
+	cp -r src              hybris_tarball
+	cp    Makefile         hybris_tarball
+	cp    config.mk        hybris_tarball
+	cp    requirements.txt hybris_tarball
+	cp -r tests            hybris_tarball
+	cp -r standalones      hybris_tarball
+	cp    setup.py         hybris_tarball
 
-venv: venv/touchfile
+	tar -czvf hybris.tar.gz hybris_tarball
 
-venv/touchfile: requirements.txt
-	test -d venv || virtualenv venv
-	. venv/bin/activate; pip install -Ur requirements.txt
-	touch venv/touchfile
-	find -iname "*.pyc" -delete
-
-python_dist:
-	python setup.py bdist_wheel
-
-
-
-distribute:
+pip_package: shared
 	python setup.py bdist_wheel --universal
 
 clean:

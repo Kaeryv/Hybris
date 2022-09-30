@@ -4,5 +4,7 @@ CC      = clang
 LIBNAME = hybris
 # Installation prefix (consider absolute)
 PREFIX  = /usr/local
-# One Of Debug, Release (intensive use), RelPortable (cluster), RelWDbgInfo (not intensive use)
+# None for Debug, Release (intensive use), RelPortable (cluster), RelWDbgInfo (not intensive use)
 RELMODE = RelPortable
+
+CEC_BECNHMARK=True

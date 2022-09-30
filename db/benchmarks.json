@@ -10,6 +10,17 @@
         "funset": 1,
         "soluces": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
+    "mixed_debug":{
+        "title": "mixed benchmark",
+        "description":"A personal benchmark used to perform meta-optimization.",
+        "optimizer_args": {
+            "max_fevals": 20000,
+            "num_agents": 20,
+            "num_variables": [20, 0]
+        },
+        "funset": 3,
+        "soluces": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 1100, 700, 1900, 1700, 1600, 2100, 2200, 2400, 2500 ]
+    },
     "train_20":{
         "title": "Training benchmark",
         "description":"A personal benchmark used to perform meta-optimization.",
@@ -115,7 +126,7 @@
         "optimizer_args": {
             "max_fevals": 40000,
             "num_agents": 40,
-            "num_dimensions": 20
+            "num_variables": [20, 0]
         },
         "funset": 2,
         "soluces": [ 100, 1100, 700, 1900, 1700, 1600, 2100, 2200, 2400, 2500 ]

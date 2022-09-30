@@ -32,6 +32,6 @@ def perform_optim(seed):
     return opt.profile[-1]
 
 results = [ 
-    perform_optim(seed) for seed in range(100) 
+    perform_optim(seed) for seed in range(20) 
 ]
 print(f"{np.mean(results)=}, {np.std(results)=}")

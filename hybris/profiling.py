@@ -18,9 +18,22 @@ def run_optimizer_problem(prob_conf_seed, opt_args, endresult=False):
     else:
         return opt.profile
 
+def run_optimizer_problem2(prob_conf_seed, opt_args, endresult=False):
+    (_, problem), (_, (rules, mask)), seed = prob_conf_seed
+    opt = Optimizer(**opt_args)
+    opt.disable_all_rules()
+    for r, m in zip(rules, mask):
+        opt.set_rule(m, r)
+    opt.minimize_problem(problem, seed)
+    if endresult is True:
+        return opt.profile[-1]
+    else:
+        return opt.profile
+
 def profile_configurations(
     configurations, 
-    nruns=5, benchmark="train", max_workers=6, endresult=False, progress=False):
+    nruns=5, benchmark="train", max_workers=6, endresult=False, progress=False,
+    run_function=run_optimizer_problem):
     assert len(configurations) > 0, "Supply at least one configuration."
 
     logging.info(f"Starting to profile configurations with {max_workers} workers.")
@@ -37,7 +50,7 @@ def profile_configurations(
             range(nruns)))
 
     with ThreadPoolExecutor(max_workers=max_workers) as pool:
-        results = pool.map(partial(run_optimizer_problem, 
+        results = pool.map(partial(run_function, 
                                    opt_args=opt_args, 
                                    endresult=endresult), 
                            prob_conf_seed)

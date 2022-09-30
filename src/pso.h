@@ -547,8 +547,9 @@ reg_update_discrete(registry_t *reg, const i32 num_agents, const i32 num_dimensi
                     count +=  1; // (num_agents-i) or f (i) to account for ranking even more ? 1 is publi
                 }
             }
-            reg_get_categorical_probability(reg, variable_id)[k] *= alpha; // alpha = 0.5 works great
-            reg_get_categorical_probability(reg, variable_id)[k] += (1-alpha)  * 2 * count / num_agents;
+            f64 current_alpha = pcg32_random_boxmuller(reg->prng, alpha, 0.1);
+            reg_get_categorical_probability(reg, variable_id)[k] *= current_alpha; // alpha = 0.5 works great
+            reg_get_categorical_probability(reg, variable_id)[k] += (1-current_alpha)  * 2 * count / num_agents;
             reg_get_categorical_probability(reg, variable_id)[k] = fmax(reg_get_categorical_probability(reg, variable_id)[k], min_prob);
             // However, this minimal probability is ESSENTIAL when the number of agents is low (diversity enabler)
             // If not present, depending on the see, some values will never appear!
@@ -750,7 +751,7 @@ reg_minimize_problem(registry_t* reg, TestCase test_case, u32 seed)
   #ifdef ADD_CECBENCHMARK
   struct cecbench_state cstate;
   cecbench_state_init(&cstate);
-  struct fun_state state = { .prng = reg->prng, .cecglobals=&cstate};
+  fun_state state = { .prng = reg->prng, .cecglobals=&cstate};
   #else
   fun_state state = { .prng = reg->prng};
   #endif

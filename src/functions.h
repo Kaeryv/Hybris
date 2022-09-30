@@ -8,7 +8,6 @@ typedef struct  {
   pcg32_random_t *prng;
 } fun_state;
 #else
-#warning Using CECBENCHMARK
 #endif
 
 typedef void (*testcase_t)(const f64*, const i32, const i32, f64*, fun_state state);
@@ -135,7 +134,6 @@ global TestCase test_cases_map[] = {
 #ifndef CECBENCH_MODULE
 volatile int cec_bench_present = false;
 #else
-#warning Using CECBENCHMARK
 #endif
 
 #ifdef CECBENCH_MODULE
@@ -327,7 +325,7 @@ TEST_CASE(xinsheyang2)
 
 TEST_CASE(xinsheyang1) 
 { 
-  float rng = (pcg32_random(state.prng) % 100000) / (100000.-1.);
+  f64 rng = (pcg32_random(state.prng) % 100000) / (100000.-1.);
   for (i32 i = 0; i < num_agents; i++)
   {
     f64 f = 0.0;

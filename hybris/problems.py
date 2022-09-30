@@ -11,6 +11,7 @@ class ProblemSet:
     @classmethod
     def list_matching_tag(cls, tag: int):
         count = cls.num_matching_tag(tag)
+        assert count > 0, "No functions match tag."
         cases = hybris.get_filtered_testcases(tag)
         return [ cases[i] for i in range(count) ]
 

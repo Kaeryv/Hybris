@@ -52,4 +52,11 @@ pcg32_random_sample(pcg32_random_t *prng, f64 *distribution, u32 len) {
   return 0;
 }
 
+f64
+pcg32_random_boxmuller(pcg32_random_t *prng, f64 mean, f64 std) {
+  f64 uniform = (pcg32_random(prng) & 0xffffffff) / (double) 0xffffffff;
+  f64 result = std * sqrt(-2.0 * log(uniform));
+  return result;
+}
+
 #endif

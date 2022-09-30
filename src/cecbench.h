@@ -10,17 +10,16 @@
 #include <stdlib.h>      
 #include <stdio.h>
 #include <math.h>
-#include <malloc.h>
 
 #include "core.h"
 
 // =========== OVERRIDES =============
 // These are overrides for functions.h
 
-struct fun_state {
-  struct pcg32_random *prng;
+typedef struct  {
+  pcg32_random_t *prng;
   struct cecbench_state *cecglobals;
-};
+} fun_state;
 
 volatile int cec_bench_present = true;
 
@@ -510,7 +509,7 @@ CEC_TEST_CASE(sum_diff_pow_func)
 	for (i=0; i<nx; i++)
 	{
 		double xi = z[i];
-		double newv = pow((abs(xi)),(i+1));
+		double newv = pow((fabs(xi)),(i+1));
 		sum = sum + newv;
 	}
 	

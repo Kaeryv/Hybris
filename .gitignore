@@ -6,7 +6,6 @@ __pycache__/
 # Data
 *.npz
 *.npy
-*.txt
 *.csv
 # C Binary files
 *.so
@@ -16,7 +15,6 @@ __pycache__/
 *.dll
 *.lib
 *.exe
-*.txt
 PKG-INFO
 *.whl
 build/

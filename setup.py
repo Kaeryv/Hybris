@@ -1,5 +1,5 @@
 import sys
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 from os import path, makedirs
 from shutil import copy
 import platform
@@ -9,9 +9,9 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-makedirs("./hybris/lib", exist_ok=True)
-copy(f"./bin/{platform.system()}/libhybris.so", "./hybris/lib/libhybris.so")
-package_data = ['lib/libhybris.so']
+#makedirs("./hybris/lib", exist_ok=True)
+#copy(f"./bin/{platform.system()}/libhybris.so", "./hybris/lib/libhybris.so")
+#package_data = ['lib/libhybris.so']
 
 py_ver = sys.version_info
 with open("requirements.txt", "r") as f:
@@ -25,6 +25,7 @@ setup(
     name='hybris-py',
     version='0.1.1',
     python_requires='>=3.3, <4',
+    ext_modules=[Extension("hybris.chybris", sources=["chybris/chybris.c"])],
     description='A Python binding for Hybris PSO Optimizer',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -48,7 +49,7 @@ setup(
     packages=['hybris'],
     install_requires=requirements,
     package_data={ 
-        'hybris': package_data,
+        #'hybris': package_data,
     },
  
     project_urls={  # Optional

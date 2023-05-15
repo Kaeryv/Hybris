@@ -40,35 +40,36 @@ prepare:
 	
 
 shared: prepare
-	$(CC) -shared src/lib.c -fPIC -o ./bin/${TARGET}/lib${LIBNAME}.so ${CFLAGS}
+	$(CC) -shared chybris/lib.c -fPIC -o ./bin/${TARGET}/lib${LIBNAME}.so ${CFLAGS}
 
 static: prepare
-	$(CC) -c src/lib.c -fPIC -o ./bin/${TARGET}/obj/temp.o ${CFLAGS}
+	$(CC) -c chybris/lib.c -fPIC -o ./bin/${TARGET}/obj/temp.o ${CFLAGS}
 	ar rcs ./bin/${TARGET}/lib${LIBNAME}.a ./bin/${TARGET}/obj/temp.o
 
 standalone: static
-	$(CC) standalones/prog_${PROGRAM}.c ./bin/${TARGET}/lib${LIBNAME}.a -o ./bin/${TARGET}/${PROGRAM}.exe -I ./src/ -lm $(CFLAGS)
+	$(CC) standalones/prog_${PROGRAM}.c ./bin/${TARGET}/lib${LIBNAME}.a -o ./bin/${TARGET}/${PROGRAM}.exe -I ./chybris/ -lm $(CFLAGS)
 
 install:
 	mkdir -p ${PREFIX}/include
 	mkdir -p ${PREFIX}/lib
-	cp src/*.h ${PREFIX}/include/
+	cp chybris/*.h ${PREFIX}/include/
 	cp bin/${TARGET}/libhybris.a ${PREFIX}/lib/
 
 tarball:
 	mkdir -p hybris_tarball
 	cp -r hybris           hybris_tarball
-	cp -r src              hybris_tarball
+	cp -r chybris              hybris_tarball
 	cp    Makefile         hybris_tarball
 	cp    config.mk        hybris_tarball
 	cp    requirements.txt hybris_tarball
 	cp -r tests            hybris_tarball
 	cp -r standalones      hybris_tarball
 	cp    setup.py         hybris_tarball
+	cp    README.md        hybris_tarball
 
 	tar -czvf hybris.tar.gz hybris_tarball
 
-pip_package: shared
+pip_package:
 	python setup.py bdist_wheel --universal
 
 clean:

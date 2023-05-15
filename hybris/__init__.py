@@ -1,23 +1,27 @@
-# import sys
-# from pathlib import Path
-# import os
-# import platform
-
-# HYBRIS_DEVLIB_PATH=f"./bin/{platform.system()}/libhybris.so"
-
-# if "HYBRIS_BINARY_PATH" in os.environ:
-#     HYBRIS_BINARY_PATH = os.environ["HYBRIS_BINARY_PATH"]
-# elif os.path.isfile(HYBRIS_DEVLIB_PATH):
-#     HYBRIS_BINARY_PATH = HYBRIS_DEVLIB_PATH
-# else:
-#     _this_mod = sys.modules[__name__]
-#     HYBRIS_BINARY_PATH = Path(_this_mod.__file__).parent / "lib/libhybris.so"
+import sys
+from pathlib import Path
+import os
+import platform
 
 
 # Load the precompiled C code
 from ctypes import CDLL
-from .chybris import __file__ as FILENAME
-HYBRIS_BINARY_PATH = FILENAME
+try:
+    from .chybris import __file__ as FILENAME
+    HYBRIS_BINARY_PATH = FILENAME
+except:
+    print("Falling-back to local Hybris shared lib.")
+    HYBRIS_DEVLIB_PATH=f"./bin/{platform.system()}/libhybris.so"
+
+    if "HYBRIS_BINARY_PATH" in os.environ:
+        HYBRIS_BINARY_PATH = os.environ["HYBRIS_BINARY_PATH"]
+    elif os.path.isfile(HYBRIS_DEVLIB_PATH):
+        HYBRIS_BINARY_PATH = HYBRIS_DEVLIB_PATH
+    else:
+        _this_mod = sys.modules[__name__]
+        HYBRIS_BINARY_PATH = Path(_this_mod.__file__).parent / "lib/libhybris.so"
+
+
 print("Using Hybris Binary from {}".format(HYBRIS_BINARY_PATH))
 _lhybris = CDLL(str(HYBRIS_BINARY_PATH))
 

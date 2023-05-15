@@ -12,9 +12,6 @@ class Optimizer():
         self.handle = hybris.registry_create(
             num_agents, self.num_dimensions, num_variables[1], self.max_iterations)
 
-        self.vmin = -1.0
-        self.vmax =  1.0
-
         self._stop = True
 
         self.iteration = 0
@@ -27,16 +24,18 @@ class Optimizer():
         self.handle.contents.cur_iteration = value
     @property
     def vmin(self):
-        return self.handle.contents.lower_bound
+        return as_array(self.handle.contents.lower_bound, shape=(self.num_variables[0],)) 
     @property
     def vmax(self):
-        return self.handle.contents.upper_bound
+        return as_array(self.handle.contents.upper_bound, shape=(self.num_variables[0],)) 
     @vmin.setter
     def vmin(self, value):
-        self.handle.contents.lower_bound = value
+        a = as_array(self.handle.contents.lower_bound, shape=(self.num_variables[0],))
+        a[:] = value
     @vmax.setter
     def vmax(self, value):
-        self.handle.contents.upper_bound = value
+        a = as_array(self.handle.contents.upper_bound, shape=(self.num_variables[0],))
+        a[:] = value
 
     def __del__(self):
         hybris.registry_free(self.handle)
@@ -47,8 +46,8 @@ class Optimizer():
             hybris.reg_set_num_categories(self.handle, i, v)
     
     def reset(self, seed):
-        self.handle.contents.lower_bound = self.vmin
-        self.handle.contents.upper_bound = self.vmax
+        #self.handle.contents.lower_bound = self.vmin
+        #self.handle.contents.upper_bound = self.vmax
         hybris.registry_init(self.handle, seed)
         self.initialized = True
         self.iteration = 0

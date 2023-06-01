@@ -2,8 +2,10 @@
 
 ## Installation
 
-```
-$ pip install hybris-py
+To install from this git repo in a virtualenv:
+
+```bash
+pip install 'hybris-py @ git+https://github.com/Kaeryv/Hybris'
 ```
 
 

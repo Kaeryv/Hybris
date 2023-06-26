@@ -8,6 +8,14 @@ To install from this git repo in a virtualenv:
 pip install 'hybris-py @ git+https://github.com/Kaeryv/Hybris'
 ```
 
+If you are installing this software on a distributed cluster with different architectures, prefer an explicit:
+
+```bash
+CFLAGS="-march=x86-64 -O2" pip install 'hybris-py @ git+https://github.com/Kaeryv/Hybris'
+```
+
+for maximum compatibility.
+
 
 ## Getting started
 

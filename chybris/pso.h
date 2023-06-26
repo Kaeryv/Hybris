@@ -493,11 +493,10 @@ reg_speed_quantum(registry_t *noalias reg, const f64 localization, const i32 num
 
 subroutine
 reg_speed_classical(registry_t* reg, const i32 num_agents, const i32 num_dimensions, i32 i) {
-  
-  f64 r1 = drandoo();
-  f64 r2 = drandoo();
   for(i32 j = 0; j < num_dimensions; j++)
   {
+    f64 r1 = drandoo();
+    f64 r2 = drandoo();
     reg_speed(reg, i)[j] *= GetWeight(reg, i, WINERTIA);
     reg_speed(reg, i)[j] += GetWeight(reg, i, WCONFIDENCE) * r1 * (reg_get_memory(reg, i)[j] - reg_position(reg, i)[j]);
     reg_speed(reg, i)[j] += GetWeight(reg, i, WSOCIAL) * r2 * (GetBestFriendMemory(reg, i)[j] - reg_position(reg, i)[j]);

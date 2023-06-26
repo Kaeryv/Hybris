@@ -175,6 +175,23 @@ C_INTERFACE = {
     "set_default_weight":                  FunSig(None,         [c_int32, c_double]),
     "reg_set_num_categories":              FunSig(None,         [CRegistryPtr, c_int32, c_int32]),
     "reg_minimize_problem":                FunSig(None,         [CRegistryPtr, CTestCase, c_uint32]),
+    "sphere":                              FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "sphere":                              FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "ackley":                              FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "rastrigin":                           FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "rosenbrock":                          FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "stiblinskitank":                      FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "schwefel":                            FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "chungreynolds":                       FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "alpine":                              FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "alpine2":                             FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "griewank":                            FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "quing":                               FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "salomon":                             FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "happycat":                            FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "xinsheyang1":                         FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "xinsheyang2":                         FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState]),
+    "bentcigar":                           FunSig(None,         [c_double_ptr, c_int32, c_int32, c_double_ptr, CFunState])
 }
 
 if _lhybris.cec_bench_present is True:

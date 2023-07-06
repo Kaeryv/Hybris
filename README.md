@@ -1,5 +1,5 @@
 # Hybris-Python
-
+![](colhybris.png)
 ## Installation
 
 To install from this git repo in a virtualenv:

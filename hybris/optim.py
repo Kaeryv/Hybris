@@ -46,8 +46,6 @@ class Optimizer():
             hybris.reg_set_num_categories(self.handle, i, v)
     
     def reset(self, seed):
-        #self.handle.contents.lower_bound = self.vmin
-        #self.handle.contents.upper_bound = self.vmax
         hybris.registry_init(self.handle, seed)
         self.initialized = True
         self.iteration = 0
@@ -113,6 +111,13 @@ class Optimizer():
     @property
     def weights(self):
         return as_array(self.handle.contents.weights, shape=(hybris.Parameter.NUM_WEIGHTS, self.num_agents ))
+    @property
+    def initial_weights(self):
+        return as_array(self.handle.contents.initial_weights, shape=(hybris.Parameter.NUM_WEIGHTS))
+    @initial_weights.setter
+    def initial_weights(self, v):
+        a = as_array(self.handle.contents.initial_weights, shape=(hybris.Parameter.NUM_WEIGHTS))
+        a[:] = v
     
     @property
     def probes(self):

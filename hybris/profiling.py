@@ -7,10 +7,12 @@ from functools import partial
 import tqdm
 import numpy as np
 
-def run_optimizer_problem(prob_conf_seed, opt_args, endresult=False):
+def run_optimizer_problem(prob_conf_seed, opt_args, initial_weights=None, endresult=False):
     (_, problem), (_, (rules, mask)), seed = prob_conf_seed
     opt = Optimizer(**opt_args)
     opt.disable_all_rules()
+    if initial_weights:
+        opt.initial_weights = initial_weights
     opt.set_rules_fromlist(mask, rules)
     opt.minimize_problem(problem, seed)
     if endresult is True:
@@ -18,10 +20,12 @@ def run_optimizer_problem(prob_conf_seed, opt_args, endresult=False):
     else:
         return opt.profile
 
-def run_optimizer_problem2(prob_conf_seed, opt_args, endresult=False):
+def run_optimizer_problem2(prob_conf_seed, opt_args, initial_weights=None, endresult=False):
     (_, problem), (_, (rules, mask)), seed = prob_conf_seed
     opt = Optimizer(**opt_args)
     opt.disable_all_rules()
+    if initial_weights:
+        opt.initial_weights = initial_weights
     for r, m in zip(rules, mask):
         opt.set_rule(m, r)
     opt.minimize_problem(problem, seed)
@@ -33,7 +37,7 @@ def run_optimizer_problem2(prob_conf_seed, opt_args, endresult=False):
 def profile_configurations(
     configurations, 
     nruns=5, benchmark="train", max_workers=6, endresult=False, progress=False,
-    run_function=run_optimizer_problem):
+    run_function=run_optimizer_problem, initial_weights=None):
     assert len(configurations) > 0, "Supply at least one configuration."
 
     logging.info(f"Starting to profile configurations with {max_workers} workers.")
@@ -52,6 +56,7 @@ def profile_configurations(
     with ThreadPoolExecutor(max_workers=max_workers) as pool:
         results = pool.map(partial(run_function, 
                                    opt_args=opt_args, 
+                                   initial_weights=initial_weights,
                                    endresult=endresult), 
                            prob_conf_seed)
         if progress:

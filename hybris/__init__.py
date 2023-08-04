@@ -137,6 +137,8 @@ class CRegistry(Structure):
         
         ("profile",           c_double_ptr),
 
+        ("initial_weights",   c_double*Parameter.NUM_WEIGHTS),
+
         ("controllers",       c_uint32*Parameter.NUM_WEIGHTS),
         ("num_agents",        c_uint32),
         ("num_dimensions",    c_uint32),

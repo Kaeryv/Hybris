@@ -8,24 +8,31 @@ from .optim import Optimizer
 
 from typing import AnyStr
 
-def benchmark_rule(X, mask: AnyStr, nruns, benchmark, max_workers, db):
-    X = list(map(int, X))
-
-    # Evaluate the configuration
-    scores = profile_configurations([(X, mask)], nruns=nruns, benchmark=benchmark, endresult=True, max_workers=max_workers)
-    scores_mean = scores[:, 0, :].mean(axis=1)
-    
-    # Compute the ranks
+def rank_in_db(scores_mean, db):
     ranks = np.empty_like(scores_mean)
     for i in range(len(ranks)):
         ranks[i] = np.searchsorted(db[i][:], scores_mean[i]) / len(db[i])
+    return ranks
+
+def benchmark_rule(X, mask: AnyStr, nruns, benchmark, max_workers, db, append2db=True, initial_weights=None):
+    X = list(map(int, X))
+
+    # Evaluate the configuration
+    scores = profile_configurations([(X, mask)], nruns=nruns, benchmark=benchmark, endresult=True, max_workers=max_workers, initial_weights=initial_weights)
+    scores_mean = scores[:, 0, :].mean(axis=1)
+    
+    # Compute the ranks
+    ranks = rank_in_db(scores_mean, db)
+
+    if append2db:
+        db = np.hstack((db, scores[:,0,:]))
     
     # Dumps all the information.
 
     objective = np.mean(ranks)
-    return objective, ranks, scores_mean
+    return objective, ranks, scores_mean, db
 
-def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, benchmark="train", db="./db/warmup/full.npy", return_all=False):
+def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, benchmark="train", db="./db/warmup/full.npy", return_all=False, max_workers=8, initial_weights=None):
     if isinstance(db, str):
         db = np.load(db)
     nrules = sum(map(int, mask))
@@ -42,13 +49,18 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, benchmark="trai
     all_objectives = []
     all_funcvals = []
     best_objective = np.inf
+    pop_scores = dict()
     while not opt.stop():
         X = opt.ask()
         objective = []
         for x in X:    
-            Y_objective, Y_ranks, Y_scores = benchmark_rule(x, mask, 5, benchmark=benchmark, max_workers=8, db=db)
+            Y_objective, Y_ranks, Y_scores, db = benchmark_rule(x, mask, 5, benchmark=benchmark, max_workers=max_workers, db=db, initial_weights=initial_weights)
+            pop_scores[hash(tuple(x))] = Y_scores
             objective.append(Y_objective)
         opt.tell(objective)
+
+        for i, (x, y) in enumerate(zip(opt.position_memories, opt.aptitude_memories)):
+            opt.aptitude_memories[i] = np.mean(rank_in_db(pop_scores[hash(tuple(x))], db))
 
         all_configurations.append(X)
         all_objectives.append(objective)
@@ -57,9 +69,10 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, benchmark="trai
         iteration_best_objective_idx = np.argmin(objective)
         if objective[iteration_best_objective_idx] < best_objective:
             best_objective = objective[iteration_best_objective_idx]
+            print(f"New best: {best_objective}")
             best_configuration[:] = X[iteration_best_objective_idx, :]
 
     if not return_all:
         return opt.profile, best_configuration
     else:
-        return opt.profile, best_configuration, (all_configurations, all_objectives, all_funcvals)
+        return opt.profile, best_configuration, (all_configurations, all_objectives, all_funcvals), db

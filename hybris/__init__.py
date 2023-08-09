@@ -138,6 +138,7 @@ class CRegistry(Structure):
         ("profile",           c_double_ptr),
 
         ("initial_weights",   c_double*Parameter.NUM_WEIGHTS),
+        ("controllers_membership",   (c_double*3)*Parameter.NUM_WEIGHTS),
 
         ("controllers",       c_uint32*Parameter.NUM_WEIGHTS),
         ("num_agents",        c_uint32),
@@ -173,7 +174,7 @@ C_INTERFACE = {
     "registry_free":                       FunSig(None,         [CRegistryPtr]),
     "rule_from_points":                    FunSig(c_int32,      [CController]),
     "pcg32_random_seed":                   FunSig(None,         [POINTER(CPRNG), c_uint64]),
-    "set_range_weight":                    FunSig(None,         [c_int32, c_double, c_double, c_double]),
+    "set_range_weight":                    FunSig(None,         [CRegistryPtr, c_int32, c_double, c_double, c_double]),
     "set_default_weight":                  FunSig(None,         [c_int32, c_double]),
     "reg_set_num_categories":              FunSig(None,         [CRegistryPtr, c_int32, c_int32]),
     "reg_minimize_problem":                FunSig(None,         [CRegistryPtr, CTestCase, c_uint32]),

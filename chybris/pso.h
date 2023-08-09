@@ -88,6 +88,8 @@ typedef struct  {
 
     f64             initial_weights[NUM_WEIGHTS];
 
+    f64             controllers_membership[NUM_WEIGHTS][3]; 
+
     u32             controllers[NUM_WEIGHTS];
     u32             num_agents;
     u32             num_dimensions;
@@ -152,15 +154,6 @@ global f64 conf_probes_membership[NUM_PROBES][3] = {
  * @brief Parameters boundaries.
  * 
  */
-global f64 conf_controllers_membership[NUM_WEIGHTS][3] = {
-  [WINERTIA]           = {  0.3,  0.7,        0.9  },
-  [WCONFIDENCE]        = {  0.7,  1.49618,    2.0  },
-  [WSOCIAL]            = {  0.7,  1.49618,    2.0  },
-  [WHYBRIDATION]       = {  0.0,  0.35,       0.7  },
-  [WLOWER_SPEED_LIMIT] = { -5.,  -3.,        -2.5  },
-  [WUPPER_SPEED_LIMIT] = {  0.2,  0.6,        1.0  },
-  [WFRIENDS_CAPACITY]  = {  3.0,  5.0,        9.0  },
-};
 
 /**
  * @brief Parameters default (static) values.
@@ -184,10 +177,10 @@ set_default_weight(i32 wid, f64 value) {
 }
 
 subroutine
-set_range_weight(i32 wid, f64 vlow, f64 vmed, f64 vhig) {
-  conf_controllers_membership[wid][0] = vlow;
-  conf_controllers_membership[wid][1] = vmed;
-  conf_controllers_membership[wid][2] = vhig;
+set_range_weight(registry_t *reg, i32 wid, f64 vlow, f64 vmed, f64 vhig) {
+  reg->controllers_membership[wid][0] = vlow;
+  reg->controllers_membership[wid][1] = vmed;
+  reg->controllers_membership[wid][2] = vhig;
 }
 
 subroutine
@@ -293,6 +286,15 @@ registry_create (i32 num_agents, i32 num_dimensions, i32 num_discrete_dimensions
     num_dimensions: num_dimensions,
     num_discrete_dimensions: num_discrete_dimensions,
     max_iterations: max_iterations,
+    controllers_membership: {
+      [WINERTIA]           = {  0.3,  0.7,        0.9  },
+      [WCONFIDENCE]        = {  0.7,  1.49618,    2.0  },
+      [WSOCIAL]            = {  0.7,  1.49618,    2.0  },
+      [WHYBRIDATION]       = {  0.0,  0.35,       0.7  },
+      [WLOWER_SPEED_LIMIT] = { -5.,  -3.,        -2.5  },
+      [WUPPER_SPEED_LIMIT] = {  0.2,  0.6,        1.0  },
+      [WFRIENDS_CAPACITY]  = {  3.0,  5.0,        9.0  },
+    }
   };
   const u32 num_continuous_dimensions = num_dimensions - reg->num_discrete_dimensions;
 
@@ -459,7 +461,7 @@ reg_fuzzy_control(registry_t * reg, const i32 num_agents) {
       for_range(i, num_agents) {
         f64 state[3] = {0};
         EvaluateRule(rule, reg->fuzzy_states + (i * FSTATE_SIZE), state);
-        SetWeight(reg, i, wid, EvaluateContinuousValue(conf_controllers_membership[wid], state));
+        SetWeight(reg, i, wid, EvaluateContinuousValue(reg->controllers_membership[wid], state));
         log_debug("%lf : %lf : %lf : rule: %u\n", state[0], state[1], state[2], rule);
       }
     }

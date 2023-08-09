@@ -11,8 +11,6 @@ available_functions = [
     "stiblinskitank",
     "schwefel",
     "chungreynolds",
-    "alpine",
-    "alpine2",
     "griewank",
     "quing",
     "salomon",

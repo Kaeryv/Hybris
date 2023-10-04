@@ -26,9 +26,9 @@ class ProblemSet:
 
 
 def get_benchmark(name: str):
-    import json
-    with open("db/benchmarks.json") as f:
-        data = json.load(f)
+    import yaml
+    with open("db/benchmarks.yml") as f:
+        data = yaml.safe_load(f)
     
     return data[name]
 

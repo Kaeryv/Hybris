@@ -24,7 +24,7 @@ typedef struct {
 #ifndef HYBRIS_DISABLE_TESTCASES
 
 #define TEST_CASE(X) \
-  extern void X (const f64 *noalias x, \
+  extern void fn_ ## X (const f64 *noalias x, \
           const i32 num_agents, \
           const i32 num_dimensions, \
           f64 *noalias aptitude,\
@@ -50,26 +50,39 @@ typedef struct {
                const i32 na, const i32 nd,\
                f64* f,\
                fun_state state)
-  
-
 #endif
 
-TEST_CASE(sphere);
 TEST_CASE(ackley);
+TEST_CASE(alpine1);
+TEST_CASE(alpine2);
+TEST_CASE(absolute);
+TEST_CASE(bentcigar);
+TEST_CASE(chungreynolds);
+TEST_CASE(eggholder);
+TEST_CASE(elliptic);
+TEST_CASE(griewank);
+TEST_CASE(happycat);
+TEST_CASE(hyperellipsoid);
+TEST_CASE(michalewicz);
+TEST_CASE(norwegian);
+TEST_CASE(quadric);
+TEST_CASE(quartic);
+TEST_CASE(quing);
 TEST_CASE(rastrigin);
 TEST_CASE(rosenbrock);
-TEST_CASE(stiblinskitank);
+TEST_CASE(saloman);
 TEST_CASE(schwefel);
-TEST_CASE(chungreynolds);
-TEST_CASE(alpine);
-TEST_CASE(alpine2);
-TEST_CASE(griewank);
-TEST_CASE(quing);
-TEST_CASE(salomon);
-TEST_CASE(happycat);
+//TEST_CASE(schwefel12);
+//TEST_CASE(schwefel221);
+//TEST_CASE(schwefel222);
+TEST_CASE(schaffer6);
+TEST_CASE(shubert);
+TEST_CASE(sphere);
+TEST_CASE(stiblinskitank);
+TEST_CASE(step);
+TEST_CASE(vincent);
 TEST_CASE(xinsheyang1);
 TEST_CASE(xinsheyang2);
-TEST_CASE(bentcigar);
 
 #ifdef CECBENCH_MODULE
 DECL_CEC_WRAPPER(1);
@@ -88,6 +101,9 @@ DECL_CEC_WRAPPER(10);
 u32
 get_num_filtered_testcases(i32 mask);
 
+u32
+get_num_testcases();
+
 TestCase*
 get_filtered_testcases(i32 mask);
 
@@ -95,27 +111,50 @@ TestCase
 get_testcase_by_id(i32 id);
 
 
-#define TRAINING BIT(0)
-#define VALIDATION BIT(1)
-#define SURFACEABLE BIT(2)
+#define TRAINING     BIT(0)
+#define VALIDATION   BIT(1)
+#define SURFACEABLE  BIT(2)
+#define UNIMODAL     BIT(3)
+#define MULTIMODAL   BIT(4)
+#define SEPARABLE    BIT(5)
+#define NONSEPARABLE BIT(6)
 
+/*
+ * Benchmark functions with proposed boundaries.
+ * This table provides a gathering of all available functions in this file along with nice defaults for boundaries.
+ */
 global TestCase test_cases_map[] = {
-  { name: "sphere",         function: sphere,          lower: -    5.0,   upper:    5.0   , flags: TRAINING   | SURFACEABLE },
-  { name: "ackley",         function: ackley,          lower: -   32.775, upper:   32.775 , flags: TRAINING   | SURFACEABLE },
-  { name: "rastrigin",      function: rastrigin,       lower: -   5.12,   upper:   5.12   , flags: TRAINING   | SURFACEABLE },
-  { name: "rosenbrock",     function: rosenbrock,      lower: -   2.048,  upper:   2.048  , flags: TRAINING   | SURFACEABLE },
-  { name: "stiblinskitank", function: stiblinskitank,  lower: -   5.0,    upper:   5.0    , flags: TRAINING   | SURFACEABLE },
-  { name: "schwefel",       function: schwefel,        lower: - 500.0,    upper: 500.0    , flags: TRAINING   | SURFACEABLE },
-  { name: "griewank",       function: griewank,        lower: -  50.0,    upper:  50.0    , flags: TRAINING   | SURFACEABLE },
-  { name: "chungreynolds",  function: chungreynolds,   lower: - 500.0,    upper: 500.0    , flags: TRAINING   | SURFACEABLE },
-  { name: "alpine",         function: alpine,          lower:     0.0,    upper:  10.0    , flags: 0          | SURFACEABLE },
-  { name: "alpine2",        function: alpine2,         lower:     0.0,    upper:  10.0    , flags: 0          | SURFACEABLE },
-  { name: "quing",          function: quing,           lower: - 500.0,    upper: 500.0    , flags: TRAINING   | SURFACEABLE },
-  { name: "happycat",       function: happycat,        lower: -   2.0,    upper:   2.0    , flags: TRAINING   | SURFACEABLE },
-  { name: "salomon",        function: salomon,         lower: -  30.0,    upper:  30.0    , flags: TRAINING   | SURFACEABLE },
-  { name: "xinsheyang1",    function: xinsheyang1,     lower: -   5.0,    upper:   5.0    , flags: TRAINING   | SURFACEABLE },
-  { name: "xinsheyang2",    function: xinsheyang2,     lower: -   6.2832, upper:   6.2832 , flags: TRAINING   | SURFACEABLE },
-  { name: "bentcigar",      function: bentcigar,       lower: - 100.0   , upper: 100.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "sphere",         function: fn_sphere,          lower: -    5.0,   upper:    5.0   , flags: TRAINING   | SURFACEABLE },
+  { name: "ackley",         function: fn_ackley,          lower: -   32.775, upper:   32.775 , flags: TRAINING   | SURFACEABLE },
+  { name: "rastrigin",      function: fn_rastrigin,       lower: -   5.12,   upper:    5.12   , flags: TRAINING   | SURFACEABLE },
+  { name: "rosenbrock",     function: fn_rosenbrock,      lower: -   2.048,  upper:    2.048  , flags: TRAINING   | SURFACEABLE },
+  { name: "stiblinskitank", function: fn_stiblinskitank,  lower: -   5.0,    upper:    5.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "schwefel",       function: fn_schwefel,        lower: - 500.0,    upper:  500.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "griewank",       function: fn_griewank,        lower: - 600.0,    upper:  600.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "chungreynolds",  function: fn_chungreynolds,   lower: - 500.0,    upper:  500.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "alpine1",        function: fn_alpine1,         lower:     0.0,    upper:   10.0    , flags: 0          | SURFACEABLE },
+  { name: "alpine2",        function: fn_alpine2,         lower:     0.0,    upper:   10.0    , flags: 0          | SURFACEABLE },
+  { name: "quing",          function: fn_quing,           lower: - 500.0,    upper:  500.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "happycat",       function: fn_happycat,        lower: -   2.0,    upper:    2.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "saloman",        function: fn_saloman,         lower: -  30.0,    upper:   30.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "xinsheyang1",    function: fn_xinsheyang1,     lower: -   5.0,    upper:    5.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "xinsheyang2",    function: fn_xinsheyang2,     lower: -   6.2832, upper:    6.2832 , flags: TRAINING   | SURFACEABLE },
+  { name: "bentcigar",      function: fn_bentcigar,       lower: - 100.0   , upper:  100.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "absolute",       function: fn_absolute,        lower: - 100.0   , upper:  100.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "eggholder",      function: fn_eggholder,       lower: - 512.0   , upper:  512.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "elliptic",       function: fn_elliptic,        lower: - 100.0   , upper:  100.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "hyperellipsoid", function: fn_hyperellipsoid,  lower: -   5.12  , upper:    5.12   , flags: TRAINING   | SURFACEABLE },
+  { name: "michalewicz",    function: fn_michalewicz,     lower:     0.0  ,  upper:    M_PI   , flags: TRAINING   | SURFACEABLE },
+  { name: "norwegian",      function: fn_norwegian,       lower: -   1.1  ,  upper:    1.1    , flags: TRAINING   | SURFACEABLE },
+  { name: "quadric",        function: fn_quadric,         lower: - 100.0  ,  upper:  100.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "quartic",        function: fn_quartic,         lower: -   1.28  , upper:  1.28   , flags: TRAINING   | SURFACEABLE },
+  { name: "schaffer6",      function: fn_schaffer6,       lower: - 100.00  , upper: 100.0    , flags: TRAINING   | SURFACEABLE },
+  //{ name: "schwefel12",     function: fn_schwefel12,      lower: - 100.00  , upper: 100.0    , flags: TRAINING   | SURFACEABLE },
+  //{ name: "schwefel221",    function: fn_schwefel221,     lower: - 100.00  , upper: 100.0    , flags: TRAINING   | SURFACEABLE },
+  //{ name: "schwefel222",    function: fn_schwefel222,     lower: -  10.00  , upper:  10.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "shubert",        function: fn_shubert,         lower: -  10.00  , upper:  10.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "step",           function: fn_step,            lower: - 100.00  , upper: 100.0    , flags: TRAINING   | SURFACEABLE },
+  { name: "vincent",        function: fn_vincent,         lower:     0.25  , upper:  10.0    , flags: TRAINING   | SURFACEABLE },
 #ifdef CECBENCH_MODULE
   { name: "cec_1",          function: cec_1,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
   { name: "cec_2",          function: cec_2,           lower: - 100.0   , upper: 100.0    , flags: VALIDATION | SURFACEABLE },
@@ -149,6 +188,11 @@ IMPL_CEC_WRAPPER(9)
 IMPL_CEC_WRAPPER(10)
 #endif
 
+
+u32
+get_num_testcases() {
+  return lenof(test_cases_map);
+}
 u32
 get_num_filtered_testcases(i32 mask)
 {
@@ -184,6 +228,97 @@ get_testcase_by_id(i32 id) {
 }
 
 
+TEST_CASE(absolute)
+{
+   for_range(i, num_agents)
+   {
+     f64 acc = 0.0;
+     for_range(j, num_dimensions) acc += AbsoluteValue(AGTPOS(i,j));
+     aptitude[i] = acc;
+   }
+}
+
+TEST_CASE(elliptic)
+{
+   for_range(i, num_agents)
+   {
+     f64 acc = 0.0;
+     for_range(j, num_dimensions) acc += pow(1e6, j / (f64) (num_dimensions - 1) ) * AGTPOS(i, j);
+     aptitude[i] = acc;
+   }
+}
+
+TEST_CASE(hyperellipsoid)
+{
+   for_range(i, num_agents)
+   {
+     f64 acc = 0.0;
+     for_range(j, num_dimensions) acc += ((f64) j + 1.0) * AGTPOS(i,j) * AGTPOS(i, j);
+     aptitude[i] = acc;
+   }
+}
+
+TEST_CASE(michalewicz)
+{
+   for_range(i, num_agents)
+   {
+     f64 acc = 0.0;
+     for_range(j, num_dimensions) acc += sin(AGTPOS(i, j)) * pow(sin((f64) (j+1) * POW2(AGTPOS(i, j)) / M_PI), 20.0);
+     aptitude[i] = - acc;
+   }
+}
+
+TEST_CASE(norwegian)
+{
+   for_range(i, num_agents)
+   {
+     f64 acc = 1.0;
+     for_range(j, num_dimensions) acc *= cos(M_PI*POW3(AGTPOS(i,j))) * ( (99.0 + AGTPOS(i,j)) / 100.0 );
+     aptitude[i] = acc;
+   }
+}
+
+TEST_CASE(quadric)
+{
+   for_range(i, num_agents)
+   {
+     f64 acc = 0.0;
+     for_range(j, num_dimensions)
+     {
+       f64 f1 = 0.0;
+       for_range(k, j+1) f1 += AGTPOS(i,k);
+       acc += POW2(f1);
+     }
+     aptitude[i] =  acc;
+   }
+}
+
+TEST_CASE(quartic)
+{
+   for_range(i, num_agents)
+   {
+     f64 acc = 0.0;
+     for_range(j, num_dimensions) acc += (f64) (j+1) * POW2(POW2(AGTPOS(i, j)));
+     aptitude[i] =  acc;
+   }
+}
+
+TEST_CASE(eggholder)
+{
+   DEBUG_ASSERT(num_dimensions > 1, "Not enough dimensions for this function");
+   for_range(i, num_agents)
+   {
+     f64 acc = 0.0;
+     for_range(j, num_dimensions-1) 
+     {
+       float xj  = AGTPOS(i,j);
+       float xj1 = AGTPOS(i,j+1);
+       acc += - (xj1 + 47) * sin(sqrt(AbsoluteValue(xj1 + xj / 2.0 + 47)));
+       acc += - xj * sin(sqrt(AbsoluteValue(xj-(xj1+47))));
+     }
+     aptitude[i] = acc;
+   }
+}
 
 TEST_CASE(sphere)
 {
@@ -191,7 +326,7 @@ TEST_CASE(sphere)
    {
      f64 acc = 0.0;
      for_range(j, num_dimensions) acc += POW2(AGTPOS(i,j));
-     aptitude[i] = acc / (f64)num_dimensions;
+     aptitude[i] = acc;
    }
 }
 
@@ -279,7 +414,7 @@ TEST_CASE(chungreynolds)
   }
 }
 
-TEST_CASE(alpine)
+TEST_CASE(alpine1)
 {
   for (i32 i = 0; i < num_agents; i++)
   {
@@ -297,13 +432,14 @@ TEST_CASE(alpine2)
 {
   for (i32 i = 0; i < num_agents; i++)
   {
-    f64 f = 1.0;
-    for (i32 j = 0; j < num_dimensions; j++)
-    {
-      i32 index = i * num_dimensions + j;
-      f *= sqrt(x[index]) * sin(x[index]); 
+
+    f64 f1 = 1.0; // Product op of x_i
+    f64 f2 = 1.0; // Product of sin(x_i)
+    for_range(j, num_dimensions) {
+      f1 *= AGTPOS(i, j);
+      f2 *= sin(AGTPOS(i,j)); 
     }
-    aptitude[i] = - f + pow(2.8085, num_dimensions); 
+    aptitude[i] = sqrt(f1) * f2;
   }
 }
 
@@ -386,13 +522,13 @@ TEST_CASE(quing)
   }
 }
 
-TEST_CASE(salomon) 
+TEST_CASE(saloman) 
 {
-  for (i32 i = 0; i < num_agents; i++)
+  for_range(i, num_agents)
   {
     f64 f = 0.0;
     f64 a = 0.0;
-    for (i32 j = 0; j < num_dimensions; j++) a += x[i*num_dimensions+j] * x[i*num_dimensions+j];
+    for_range(j, num_dimensions) a += x[i*num_dimensions+j] * x[i*num_dimensions+j];
 
     f64 sqa = sqrt(a);
 
@@ -402,10 +538,58 @@ TEST_CASE(salomon)
   }
 }
 
+TEST_CASE(schaffer6) 
+{
+  for_range(i, num_agents)
+  {
+    f64 f = 0.0;
+    for_range(j, num_dimensions-1) {
+      float xj  = AGTPOS(i,j);
+      float xj1 = AGTPOS(i,j+1);
+      f += 0.5 + (POW2(sin(POW2(xj) + POW2(xj1))) - 0.5) / POW2(1 + 0.001 * (POW2(xj) + POW2(xj1) ));
+    }
+    aptitude[i] = f;
+  }
+}
+
+TEST_CASE(shubert) 
+{
+  for_range(i, num_agents)
+  {
+    f64 f = 1.0;
+    for_range(j, num_dimensions) {
+      f64 f1 = 0.0;
+      for_range(k, 5) {
+        f1 += (k+1) * cos((k+2)*AGTPOS(i, j) + k + 1);
+      }
+      f *= f1;
+    }
+    aptitude[i] = f;
+  }
+}
+
+TEST_CASE(step)
+{
+  for_range(i, num_agents) {
+    f64 f = 0.0;
+    for_range(j, num_dimensions) f += POW2(AGTPOS(i,j) + 0.5);
+    aptitude[i] = f;
+  }
+}
+
+TEST_CASE(vincent)
+{
+  for_range(i, num_agents) {
+    f64 f = 0.0;
+    for_range(j, num_dimensions) f += sin(10.0 * sqrt(AGTPOS(i,j)));
+    aptitude[i] = - 1.0 - f;
+  }
+}
+
 TEST_CASE(bentcigar)
 {
   for_range(i, num_agents) {
-    double f = POW2(x[i*num_dimensions+0]);
+    f64 f = POW2(x[i*num_dimensions+0]);
     for(i32 j = 1; j < num_dimensions; j++) {
       f += 10e+6 * POW2(x[i*num_dimensions+j]);
     }

@@ -58,6 +58,8 @@ typedef void*    ptr;
 #define xstr(s) str(s)
 
 #define AbsoluteValue(X) _Generic((X), float: (((X) < 0.0f) ? (-(X)): (X)), double: (((X) < 0.0) ? (-(X)): (X)), default:(((X) < 0) ? (-(X)): (X)))
+#define POW2(X) ((X)*(X))
+#define POW3(X) ((X)*(X)*(X))
 //void nx_mkdir(const char * path)
 //{
 //  struct stat st = {0};

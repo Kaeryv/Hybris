@@ -4,7 +4,9 @@ from ctypes import c_uint32, c_void_p
 from typing import List
 
 class Optimizer():
-    def __init__(self, num_agents=40, num_variables=[10, 0], max_fevals=4000) -> None:
+    def __init__(self, num_agents=40, num_variables=[10, 0], max_fevals=4000, initial_weights=None) -> None:
+        if initial_weights:
+            self.initial_weights = initial_weights
         self.num_dimensions = sum(num_variables)
         self.max_iterations = max_fevals // num_agents
         self.num_agents = num_agents
@@ -101,6 +103,23 @@ class Optimizer():
                 rule = rules[j*8:j*8+8]
                 self.set_rule_fromlist(i, rule)
                 j += 1
+
+    def set_memberships(self, mask, weights):
+        """
+        :param mask: Bitfield represented by a string or a list, for example "0000001"
+        :param weights: For each 1 in the bitfield, the associated rule
+        """
+        mask = mask if isinstance(mask, str) else "".join([str(e) for e in mask])
+        assert len(mask) == hybris.Parameter.NUM_WEIGHTS, f"Lenght of mask is incorrect: {len(mask)}"
+        j = 0
+        for i, e in enumerate(mask):
+            if e == '1':
+                w = weights[j*3:j*3+3]
+                #self.handle.contents.controllers_membership[i][0] = w[0]
+                #self.handle.contents.controllers_membership[i][1] = w[1]
+                #self.handle.contents.controllers_membership[i][2] = w[2]
+                j += 1
+
 
     def get_rule(self, index: int) -> int:
         return self.handle.contents.controllers[index]

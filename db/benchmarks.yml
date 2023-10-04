@@ -1,0 +1,90 @@
+harrison_2016:
+  optimizer_args:
+    num_variables: [10,0]
+    num_agents: 40
+  problems:
+    - function: absolute
+      lower: -100.
+      upper:  100.
+    - function: ackley
+      lower: -32.768
+      upper:  32.768
+    - function: alpine1
+      lower: -10.0
+      upper:  10.0
+    - function: eggholder
+      lower: -512.0
+      upper:  512.0
+    - function: elliptic
+      lower: -100.0
+      upper:  100.0
+    - function: griewank
+      lower: -600.0
+      upper:  600.0
+    - function:  hyperellipsoid
+      upper:  5.12
+      lower: -5.12
+    - function: michalewicz
+      upper: 3.1415
+      lower: 0.0
+    - function: norwegian
+      lower: -1.1
+      upper:  1.1
+    - function: quadric
+      lower: -100.
+      upper: 100.
+    - function: quartic
+      lower: -1.28
+      upper: 1.28
+    - function: rastrigin
+      lower: -5.12
+      upper:  5.12
+    - function: rosenbrock
+      lower: -30.0
+      upper:  30.0
+    - function: saloman
+      lower: -100.0
+      upper:  100.0
+    - function: schaffer6
+      upper: 100.0
+      lower: -100.0
+    - function: shubert
+      upper: 10.0
+      lower: -10.0
+    - function: sphere
+      lower: -5.12
+      upper:  5.12
+    - function: step
+      lower: -100.0
+      upper: 100.0
+    - function: vincent
+      upper: 10.0
+      lower: 0.25
+
+
+
+train:
+  optimizer_args:
+    num_variables: [50,0]
+    num_agents: 40
+  problems:
+    - function: stiblinskitank
+      lower: -5.0
+      upper:  5.0
+    - function: schwefel
+      lower: -500.0
+      upper:  500.0
+
+
+
+
+  # { name: "griewank",       function: griewank,        lower: -  50.0,    upper:  50.0    , flags: TRAINING   | SURFACEABLE },
+  # { name: "chungreynolds",  function: chungreynolds,   lower: - 500.0,    upper: 500.0    , flags: TRAINING   | SURFACEABLE },
+  # { name: "alpine",         function: alpine,          lower:     0.0,    upper:  10.0    , flags: 0          | SURFACEABLE },
+  # { name: "alpine2",        function: alpine2,         lower:     0.0,    upper:  10.0    , flags: 0          | SURFACEABLE },
+  # { name: "quing",          function: quing,           lower: - 500.0,    upper: 500.0    , flags: TRAINING   | SURFACEABLE },
+  # { name: "happycat",       function: happycat,        lower: -   2.0,    upper:   2.0    , flags: TRAINING   | SURFACEABLE },
+  # { name: "salomon",        function: salomon,         lower: -  30.0,    upper:  30.0    , flags: TRAINING   | SURFACEABLE },
+  # { name: "xinsheyang1",    function: xinsheyang1,     lower: -   5.0,    upper:   5.0    , flags: TRAINING   | SURFACEABLE },
+  # { name: "xinsheyang2",    function: xinsheyang2,     lower: -   6.2832, upper:   6.2832 , flags: TRAINING   | SURFACEABLE },
+  # { name: "bentcigar",      function: bentcigar,       lower: - 100.0   , upper: 100.0    , flags: TRAINING   | SURFACEABLE },

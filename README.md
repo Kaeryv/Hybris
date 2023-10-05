@@ -1,5 +1,6 @@
 # Hybris-Python
-![](colhybris.png)
+![](colhybris-light.png#gh-light-mode-only)
+![](colhybris-dark.png#gh-dark-mode-only)
 ## Installation
 
 To install from this git repo in a virtualenv:

@@ -19,3 +19,6 @@ PKG-INFO
 *.whl
 build/
 bin/
+*.pkl
+local_*.py
+.DS_Store

@@ -62,6 +62,18 @@ hard_boundaries = [
     (0.0, 1.0), # L
     (0.0, 1.0)  # K
 ]
+
+def expandw(x, mask, cont_dimensions, nrules):
+    wcw = x[:cont_dimensions].reshape(nrules, 2)
+    j = 0
+    ret = []
+    for i, e in enumerate(list(mask)):
+        if e == "1":
+            c = wcw[j][0]
+            w = wcw[j][1] / 2.0
+            ret.extend([ max(hard_boundaries[i][0], c - w), c, min(c+w, hard_boundaries[i][1])])
+            j += 1
+    return ret 
 def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup/full.npy", return_all=False, profiler_args={}):
     profiler_defaults = {"benchmark": "train", "nruns": 5, "max_workers": 8 }
     profiler_defaults.update(profiler_args)
@@ -78,7 +90,7 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
     nq = _lhybris.fuzz_get_num_qualities_combinations() # Terms
     no = 8 # Sign
     na = 3 # Priority of operations
-    nd = 10 * nrules # Total dimensions
+    nd = (2+8) * nrules # Total dimensions
     cont_dimensions = 2 * nrules
     categ_dimensions = 8 * nrules
     opt = ParticleSwarm(num_agents=num_agents, num_variables=[cont_dimensions, categ_dimensions], max_fevals=max_fevals)
@@ -96,19 +108,9 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
     while not opt.stop():
         X = opt.ask()
         objective = []
-        def expandw(x):
-            wcw = x[:cont_dimensions].reshape(nrules, 2)
-            j = 0
-            ret = []
-            for i, e in enumerate(list(mask)):
-                if e == "1":
-                    c = wcw[j][0]
-                    w = wcw[j][1] / 2.0
-                    ret.extend([ max(hard_boundaries[i][0], c - w), c, min(c+w, hard_boundaries[i][1])])
-                    j += 1
-            return ret 
+
             
-        configurations = [ (x[cont_dimensions:].astype(np.int32), mask, expandw(x)) for x in X ] 
+        configurations = [ (x[cont_dimensions:].astype(np.int32), mask, expandw(x, mask, cont_dimensions, nrules)) for x in X ] 
         Y_objective, Y_ranks, Y_scores, db = benchmark_rule(configurations, db=db, **profiler_args)
 
         for i, x in enumerate(X):

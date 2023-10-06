@@ -1,4 +1,4 @@
-from hybris.optim import Optimizer
+from hybris.optim import ParticleSwarm
 from hybris.problems import get_benchmark, ProblemSet
 import logging
 from itertools import product
@@ -17,7 +17,7 @@ def profiler_kernel(prob_conf_seed, opt_args, endresult=False):
     else:
         print("Error: ", len(prob_conf_seed[1][1]))
 
-    opt = Optimizer(**opt_args)
+    opt = ParticleSwarm(**opt_args)
     opt.disable_all_rules()
     opt.set_rules_fromlist(mask, rules)
     if len(prob_conf_seed[1][1]) == 3:

@@ -4,7 +4,7 @@ from .profiling import profile_configurations
 from functools import partial
 from . import _lhybris
 import numpy as np
-from .optim import Optimizer
+from .optim import ParticleSwarm
 
 from typing import AnyStr
 from .problems import get_benchmark
@@ -81,7 +81,7 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
     nd = 10 * nrules # Total dimensions
     cont_dimensions = 2 * nrules
     categ_dimensions = 8 * nrules
-    opt = Optimizer(num_agents=num_agents, num_variables=[cont_dimensions, categ_dimensions], max_fevals=max_fevals)
+    opt = ParticleSwarm(num_agents=num_agents, num_variables=[cont_dimensions, categ_dimensions], max_fevals=max_fevals)
     configure_mopt_membership(opt, mask)
     opt.num_categories([nq, no, nq, no, nq, na, na, na] * nrules)
     opt.reset(seed)

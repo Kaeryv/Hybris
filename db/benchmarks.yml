@@ -1,6 +1,6 @@
 harrison_2016:
   optimizer_args:
-    num_variables: [10,0]
+    num_variables: [30,0]
     num_agents: 40
   problems:
     - function: absolute

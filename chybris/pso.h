@@ -166,7 +166,7 @@ global f64 conf_initial_weights[] = {
   [WHYBRIDATION]       = 0.0,
   [WLOWER_SPEED_LIMIT] = -16,
   [WUPPER_SPEED_LIMIT] = 0.6,
-  [WFRIENDS_CAPACITY]  = 3.0,
+  [WFRIENDS_CAPACITY]  = 0.1,
 };
 /**
  * Getters and Setters for python API.
@@ -267,9 +267,12 @@ reg_refresh_rand_topology(registry_t * reg, const i32 num_agents, i32 initial_ru
 {
   for (i32 i = 0; i < num_agents; i++)
   {
-    reg->friends_count[i] = 0;
+    reg->friends_count[i] = 0; // Empty the friends list
+    // Inform yourself
+    set_put_i32(&reg->friends[i*num_agents], &reg->friends_count[i], num_agents, i);
 
-    while (reg->friends_count[i] < GetWeight(reg, i, WFRIENDS_CAPACITY))
+    // Fill with random friends
+    while (reg->friends_count[i] < round(num_agents * GetWeight(reg, i, WFRIENDS_CAPACITY)))
     {
         i32 picked_friend = urand() % reg->num_agents;
         set_put_i32(&reg->friends[i*num_agents], &reg->friends_count[i], num_agents, picked_friend);
@@ -293,7 +296,7 @@ registry_create (i32 num_agents, i32 num_dimensions, i32 num_discrete_dimensions
       [WHYBRIDATION]       = {  0.0,  0.35,       0.7  },
       [WLOWER_SPEED_LIMIT] = { -5.,  -3.,        -2.5  },
       [WUPPER_SPEED_LIMIT] = {  0.2,  0.6,        1.0  },
-      [WFRIENDS_CAPACITY]  = {  3.0,  5.0,        9.0  },
+      [WFRIENDS_CAPACITY]  = {  0.1,  0.125,      0.25 },
     }
   };
   const u32 num_continuous_dimensions = num_dimensions - reg->num_discrete_dimensions;

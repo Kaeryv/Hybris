@@ -13,7 +13,7 @@ import os
 
 def rank_in_db(db, scores_mean):
     ranks = np.empty_like(scores_mean)
-    # ranks.shape = (14, len(configs))
+    # ranks.shape = (len(functions), len(configs))
     for i in range(scores_mean.shape[0]):
         ranks[i] = np.searchsorted(db[i], scores_mean[i]) / len(db[i])
     return ranks
@@ -32,19 +32,40 @@ def benchmark_rule(configurations, nruns, benchmark, max_workers, db, append2db=
     #objective.shape = (len(configs),)
     return objective, ranks, scores_mean, db
 
+def configure_mopt_membership(mopt, mask):
+    imask = list(map(int, list(mask)))
+
+    # Range for center and width
+    centermin = [ 0.1, 0.1, 0.1, 0.1, -15, 0.1,  3 ]
+    centermax = [ 0.9, 1.9, 1.9, 0.9,   0, 1.0, 40 ]
+    widthmin =  [ 0.2, 0.2, 0.2, 0.2,   1, 0.1,  1 ]
+    widthmax =  [ 1.0, 2.0, 2.0, 1.0,  10, 1.0, 30 ]
+
+    vmin = []
+    vmax = []
+    for i, rule_enabled in enumerate(imask):
+        if rule_enabled:
+            vmin.append(centermin[i])
+            vmin.append(widthmin[i])
+            vmax.append(centermax[i])
+            vmax.append(widthmax[i])
+
+    mopt.vmin = vmin
+    mopt.vmax = vmax
+
+hard_boundaries = [
+    (0.0, 1.0), # w
+    (0.0, 2.5), # c1
+    (0.0, 2.5), # c2
+    (0.0, 1.0), # h
+    (-16, 0.0), # l
+    (0.0, 1.0), # L
+    (0.0, 1.0)  # K
+]
 def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup/full.npy", return_all=False, profiler_args={}):
     profiler_defaults = {"benchmark": "train", "nruns": 5, "max_workers": 8 }
     profiler_defaults.update(profiler_args)
     profiler_args = profiler_defaults
-    hard_boundaries = [
-        (0.0, 1.0), # w
-        (0.0, 2.5), # c1
-        (0.0, 2.5), # c2
-        (0.0, 1.0), # h
-        (-16, 0.0), # l
-        (0.1, 1.0), # L
-        (0.0, 1.0)  # K
-    ]
     bench = get_benchmark(profiler_args["benchmark"])["problems"]
     nfunctions = len(bench)
     if isinstance(db, str):
@@ -61,10 +82,12 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
     cont_dimensions = 2 * nrules
     categ_dimensions = 8 * nrules
     opt = Optimizer(num_agents=num_agents, num_variables=[cont_dimensions, categ_dimensions], max_fevals=max_fevals)
+    configure_mopt_membership(opt, mask)
     opt.num_categories([nq, no, nq, no, nq, na, na, na] * nrules)
     opt.reset(seed)
 
-    best_configuration = np.empty(nd, dtype=int)
+
+    best_configuration = np.empty(nd, dtype=float)
     all_configurations = []
     all_objectives = []
     all_funcvals = []
@@ -89,19 +112,20 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
         Y_objective, Y_ranks, Y_scores, db = benchmark_rule(configurations, db=db, **profiler_args)
 
         for i, x in enumerate(X):
-            pop_scores[hash(tuple(x))] = Y_scores[:, i][:, np.newaxis]
+            pop_scores[hash(tuple(x))] = Y_scores[:, i][:]
         opt.tell(Y_objective)
         
         # Update memories as an objective based on rank changes!
-        for i, (x, y) in enumerate(zip(opt.position_memories, opt.aptitude_memories)):
-            opt.aptitude_memories[i] = np.mean(rank_in_db(pop_scores[hash(tuple(x))], db))
+        scores_reevaluation = np.asarray([ pop_scores[hash(tuple(x))] for x in opt.position_memories]).T
+        ranks_reevaluation = rank_in_db(db, scores_reevaluation)
+        opt.aptitude_memories[:] = np.mean(ranks_reevaluation, axis=0)
 
         all_configurations.append(X)
         all_objectives.append(Y_objective)
         all_funcvals.append(Y_scores)
 
         iteration_best_objective_idx = np.argmin(Y_objective)
-        if Y_objective[iteration_best_objective_idx] < best_objective:
+        if np.all(Y_objective[iteration_best_objective_idx] < opt.aptitude_memories):
             best_objective = Y_objective[iteration_best_objective_idx]
             print(f"New best: {best_objective}")
             best_configuration[:] = X[iteration_best_objective_idx, :]

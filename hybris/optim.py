@@ -3,7 +3,7 @@ from numpy.ctypeslib import as_array
 from ctypes import c_uint32, c_void_p
 from typing import List
 
-class Optimizer():
+class ParticleSwarm():
     def __init__(self, num_agents=40, num_variables=[10, 0], max_fevals=4000, initial_weights=None) -> None:
         if initial_weights:
             self.initial_weights = initial_weights
@@ -115,9 +115,9 @@ class Optimizer():
         for i, e in enumerate(mask):
             if e == '1':
                 w = weights[j*3:j*3+3]
-                #self.handle.contents.controllers_membership[i][0] = w[0]
-                #self.handle.contents.controllers_membership[i][1] = w[1]
-                #self.handle.contents.controllers_membership[i][2] = w[2]
+                self.handle.contents.controllers_membership[i][0] = w[0]
+                self.handle.contents.controllers_membership[i][1] = w[1]
+                self.handle.contents.controllers_membership[i][2] = w[2]
                 j += 1
 
 

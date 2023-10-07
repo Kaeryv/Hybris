@@ -64,6 +64,7 @@ hard_boundaries = [
 ]
 
 def expandw(x, mask, cont_dimensions, nrules):
+    x = np.asarray(x)
     wcw = x[:cont_dimensions].reshape(nrules, 2)
     j = 0
     ret = []

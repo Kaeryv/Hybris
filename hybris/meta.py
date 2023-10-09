@@ -66,8 +66,7 @@ def expandw(mask, x):
         (0.0, 1.0)  # K
     ]
     nrules = mask.count("1")
-    countinuous_dimensions = nrules * 2
-    wcw = x[:countinuous_dimensions].reshape(nrules, 2)
+    wcw = x.reshape(nrules, 2)
     j = 0
     ret = []
     for i, e in enumerate(list(mask)):
@@ -111,7 +110,7 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
     while not opt.stop():
         X = opt.ask()
             
-        configurations = [ (x[cont_dimensions:].astype(np.int32), mask, expandw(mask, x)) for x in X ] 
+        configurations = [ (x[cont_dimensions:].astype(np.int32), mask, expandw(mask, x[:cont_dimensions])) for x in X ] 
         Y_objective, Y_ranks, Y_function_error, db = benchmark_rule(configurations, db=db, **profiler_args)
 
         for i, x in enumerate(X):

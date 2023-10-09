@@ -37,7 +37,7 @@ def configure_mopt_membership(mopt, mask):
 
     # Range for center and width
     centermin = [ 0.1, 0.1, 0.1, 0.1, -15, 0.1,  3 ]
-    centermax = [ 0.9, 1.9, 1.9, 0.9,   0, 1.0, 40 ]
+    centermax = [ 0.9, 1.9, 1.9, 0.9,  -1, 1.0, 40 ]
     widthmin =  [ 0.2, 0.2, 0.2, 0.2,   1, 0.1,  1 ]
     widthmax =  [ 1.0, 2.0, 2.0, 1.0,  10, 1.0, 30 ]
 
@@ -61,7 +61,7 @@ def expandw(mask, x):
         (0.0, 2.5), # c1
         (0.0, 2.5), # c2
         (0.0, 1.0), # h
-        (-16, 0.0), # l
+        (-16, -1.), # l
         (0.0, 1.0), # L
         (0.0, 1.0)  # K
     ]

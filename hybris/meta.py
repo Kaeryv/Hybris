@@ -13,7 +13,7 @@ import os
 
 def rank_in_db(db, scores_mean):
     ranks = np.empty_like(scores_mean)
-    # ranks.shape = (len(functions), len(configs))
+    # ranks.shape == (len(functions), len(configs))
     for i in range(scores_mean.shape[0]):
         ranks[i] = np.searchsorted(db[i], scores_mean[i]) / len(db[i])
     return ranks
@@ -53,19 +53,21 @@ def configure_mopt_membership(mopt, mask):
     mopt.vmin = vmin
     mopt.vmax = vmax
 
-hard_boundaries = [
-    (0.0, 1.0), # w
-    (0.0, 2.5), # c1
-    (0.0, 2.5), # c2
-    (0.0, 1.0), # h
-    (-16, 0.0), # l
-    (0.0, 1.0), # L
-    (0.0, 1.0)  # K
-]
 
-def expandw(x, mask, cont_dimensions, nrules):
+def expandw(mask, x):
     x = np.asarray(x)
-    wcw = x[:cont_dimensions].reshape(nrules, 2)
+    hard_boundaries = [
+        (0.0, 1.0), # w
+        (0.0, 2.5), # c1
+        (0.0, 2.5), # c2
+        (0.0, 1.0), # h
+        (-16, 0.0), # l
+        (0.0, 1.0), # L
+        (0.0, 1.0)  # K
+    ]
+    nrules = mask.count("1")
+    countinuous_dimensions = nrules * 2
+    wcw = x[:countinuous_dimensions].reshape(nrules, 2)
     j = 0
     ret = []
     for i, e in enumerate(list(mask)):
@@ -103,19 +105,17 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
     best_configuration = np.empty(nd, dtype=float)
     all_configurations = []
     all_objectives = []
-    all_funcvals = []
+    archive_functions_error = []
     best_objective = np.inf
     pop_scores = dict()
     while not opt.stop():
         X = opt.ask()
-        objective = []
-
             
-        configurations = [ (x[cont_dimensions:].astype(np.int32), mask, expandw(x, mask, cont_dimensions, nrules)) for x in X ] 
-        Y_objective, Y_ranks, Y_scores, db = benchmark_rule(configurations, db=db, **profiler_args)
+        configurations = [ (x[cont_dimensions:].astype(np.int32), mask, expandw(mask, x)) for x in X ] 
+        Y_objective, Y_ranks, Y_function_error, db = benchmark_rule(configurations, db=db, **profiler_args)
 
         for i, x in enumerate(X):
-            pop_scores[hash(tuple(x))] = Y_scores[:, i][:]
+            pop_scores[hash(tuple(x))] = Y_function_error[:, i][:]
         opt.tell(Y_objective)
         
         # Update memories as an objective based on rank changes!
@@ -125,7 +125,7 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
 
         all_configurations.append(X)
         all_objectives.append(Y_objective)
-        all_funcvals.append(Y_scores)
+        archive_functions_error.append(Y_function_error)
 
         iteration_best_objective_idx = np.argmin(Y_objective)
         if np.all(Y_objective[iteration_best_objective_idx] < opt.aptitude_memories):
@@ -136,4 +136,4 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
     if not return_all:
         return opt.profile, best_configuration
     else:
-        return opt.profile, best_configuration, (all_configurations, all_objectives, all_funcvals), db
+        return opt.profile, best_configuration, (all_configurations, all_objectives, archive_functions_error), db

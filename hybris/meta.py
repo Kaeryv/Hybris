@@ -15,12 +15,13 @@ def rank_in_db(db, scores_mean):
     ranks = np.empty_like(scores_mean)
     # ranks.shape == (len(functions), len(configs))
     for i in range(scores_mean.shape[0]):
+        db[i] = np.sort(db[i])
         ranks[i] = np.searchsorted(db[i], scores_mean[i]) / len(db[i])
     return ranks
-def benchmark_rule(configurations, nruns, benchmark, max_workers, db, append2db=True, optimizer_args_update={}):
+def benchmark_rule(configurations, db, profiler_args, append2db=True):
     # Evaluate the configuration
-    scores = profile_configurations(configurations, nruns=nruns, benchmark=benchmark, endresult=True, max_workers=max_workers, optimizer_args_update=optimizer_args_update)
-    # scores.shape = (14, len(configs), nruns)
+    scores = profile_configurations(configurations, endresult=True, **profiler_args)
+    # scores.shape = (len(functions), len(configs), nruns)
     scores_mean = scores.mean(axis=2)
     # scores_mean.shape = (14, len(configs))
     ranks = rank_in_db(db, scores_mean)
@@ -33,22 +34,19 @@ def benchmark_rule(configurations, nruns, benchmark, max_workers, db, append2db=
     return objective, ranks, scores_mean, db
 
 def configure_mopt_membership(mopt, mask):
-    imask = list(map(int, list(mask)))
+    fuzzy_params_ids = [i for i, x in enumerate(mask) if int(x) == 1 ]
 
     # Range for center and width
-    centermin = [ 0.1, 0.1, 0.1, 0.1, -15, 0.1,  3 ]
-    centermax = [ 0.9, 1.9, 1.9, 0.9,  -1, 1.0, 40 ]
-    widthmin =  [ 0.2, 0.2, 0.2, 0.2,   1, 0.1,  1 ]
-    widthmax =  [ 1.0, 2.0, 2.0, 1.0,  10, 1.0, 30 ]
+    centermin = [ 0.1, 0.1, 0.1, 0.1, -15, 0.1,  0.01 ]
+    centermax = [ 0.9, 1.9, 1.9, 0.9,  -1, 1.0, 1.0 ]
+    widthmin =  [ 0.2, 0.2, 0.2, 0.2,   1, 0.1,  0.05 ]
+    widthmax =  [ 1.0, 2.0, 2.0, 1.0,  10, 1.0,  1.0 ]
 
     vmin = []
     vmax = []
-    for i, rule_enabled in enumerate(imask):
-        if rule_enabled:
-            vmin.append(centermin[i])
-            vmin.append(widthmin[i])
-            vmax.append(centermax[i])
-            vmax.append(widthmax[i])
+    for param_id in fuzzy_params_ids:
+        vmin.extend([centermin[param_id], widthmin[param_id]])
+        vmax.extend([centermax[param_id], widthmax[param_id]])
 
     mopt.vmin = vmin
     mopt.vmax = vmax
@@ -83,11 +81,8 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
     bench = get_benchmark(profiler_args["benchmark"])["problems"]
     nfunctions = len(bench)
     if isinstance(db, str):
-        if os.path.isfile(db):
-            db = np.load(db)
-        else:
-            print("Creating new db")
-            db = np.zeros((nfunctions,1))
+        db = np.load(db) if os.path.isfile(db) else -np.inf * np.ones((nfunctions,1))
+
     nrules = sum(map(int, mask))
     nq = _lhybris.fuzz_get_num_qualities_combinations() # Terms
     no = 8 # Sign
@@ -99,6 +94,7 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
     configure_mopt_membership(opt, mask)
     opt.num_categories([nq, no, nq, no, nq, na, na, na] * nrules)
     opt.reset(seed)
+    opt.weights[0,:] = 0.3
 
 
     best_configuration = np.empty(nd, dtype=float)
@@ -111,14 +107,17 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
         X = opt.ask()
             
         configurations = [ (x[cont_dimensions:].astype(np.int32), mask, expandw(mask, x[:cont_dimensions])) for x in X ] 
-        Y_objective, Y_ranks, Y_function_error, db = benchmark_rule(configurations, db=db, **profiler_args)
-
+        Y_objective, Y_ranks, Y_function_error, db = benchmark_rule(configurations, db, profiler_args, append2db=True)
         for i, x in enumerate(X):
-            pop_scores[hash(tuple(x))] = Y_function_error[:, i][:]
+            x_hash = hash(tuple(map(lambda a: int(500*a), x)))
+            if not x_hash in pop_scores.keys():
+                pop_scores[x_hash] = Y_function_error[:, i][:]
+            else:
+                print("[Warning] Evaluating same configuration")
         opt.tell(Y_objective)
         
         # Update memories as an objective based on rank changes!
-        scores_reevaluation = np.asarray([ pop_scores[hash(tuple(x))] for x in opt.position_memories]).T
+        scores_reevaluation = np.asarray([ pop_scores[hash(tuple(map(lambda a: int(500*a), x)))] for x in opt.position_memories]).T
         ranks_reevaluation = rank_in_db(db, scores_reevaluation)
         opt.aptitude_memories[:] = np.mean(ranks_reevaluation, axis=0)
 

@@ -97,11 +97,11 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
     opt.weights[0,:] = 0.3
 
 
-    best_configuration = np.empty(nd, dtype=float)
+    best_configuration = None
+    best_configuration_objective = np.inf
     all_configurations = []
     all_objectives = []
     archive_functions_error = []
-    best_objective = np.inf
     pop_scores = dict()
     while not opt.stop():
         X = opt.ask()
@@ -115,7 +115,7 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
             else:
                 print("[Warning] Evaluating same configuration")
         opt.tell(Y_objective)
-        
+
         # Update memories as an objective based on rank changes!
         scores_reevaluation = np.asarray([ pop_scores[hash(tuple(map(lambda a: int(500*a), x)))] for x in opt.position_memories]).T
         ranks_reevaluation = rank_in_db(db, scores_reevaluation)
@@ -126,10 +126,10 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
         archive_functions_error.append(Y_function_error)
 
         iteration_best_objective_idx = np.argmin(Y_objective)
-        if np.all(Y_objective[iteration_best_objective_idx] < opt.aptitude_memories):
-            best_objective = Y_objective[iteration_best_objective_idx]
-            print(f"New best: {best_objective}")
-            best_configuration[:] = X[iteration_best_objective_idx, :]
+        if Y_objective[iteration_best_objective_idx] < best_configuration_objective:
+            best_configuration_objective = Y_objective[iteration_best_objective_idx]
+            print(f"New best: {best_configuration_objective}")
+            best_configuration = X[iteration_best_objective_idx, :]
 
     if not return_all:
         return opt.profile, best_configuration

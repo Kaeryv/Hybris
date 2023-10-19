@@ -65,15 +65,52 @@ harrison_2016:
 
 train:
   optimizer_args:
-    num_variables: [50,0]
+    num_variables: [30,0]
     num_agents: 40
+    max_fevals: 40000
   problems:
+    - function: sphere
+      lower: -5.0
+      upper: 5.0
+    - function: ackley
+      lower: -32.775
+      upper:  32.775
+    - function: rastrigin
+      lower: -5.12
+      upper:  5.12
+    - function: rosenbrock
+      lower: -2.048
+      upper:  2.048
     - function: stiblinskitank
       lower: -5.0
       upper:  5.0
     - function: schwefel
       lower: -500.0
       upper:  500.0
+    - function: griewank
+      lower: -50.0
+      upper:  50.0
+    - function: chungreynolds
+      upper: 500.0
+      lower: -500.0
+    - function: quing
+      lower: -500.0
+      upper: 500.0
+    - function: happycat
+      lower: -2.0
+      upper: 2.0
+    - function: saloman
+      lower: -30.0
+      upper: 30.0
+    - function:  xinsheyang1
+      lower: -5.0
+      upper: 5.0
+    - function:  xinsheyang2
+      lower: -6.2832
+      upper: 6.2832
+    - function: bentcigar
+      lower: -100.0
+      upper: 100.0
 
 
 

@@ -53,6 +53,8 @@ def configure_mopt_membership(mopt, mask):
 
 
 def expandw(mask, x):
+    if len(x) == 0:
+        return None
     x = np.asarray(x)
     hard_boundaries = [
         (0.0, 1.0), # w
@@ -74,7 +76,7 @@ def expandw(mask, x):
             ret.extend([ max(hard_boundaries[i][0], c - w), c, min(c+w, hard_boundaries[i][1])])
             j += 1
     return ret 
-def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup/full.npy", return_all=False, profiler_args={}):
+def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, optimize_membership=False, db="./db/warmup/full.npy", return_all=False, profiler_args={}):
     profiler_defaults = {"benchmark": "train", "nruns": 5, "max_workers": 8 }
     profiler_defaults.update(profiler_args)
     profiler_args = profiler_defaults
@@ -87,11 +89,12 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
     nq = _lhybris.fuzz_get_num_qualities_combinations() # Terms
     no = 8 # Sign
     na = 3 # Priority of operations
-    nd = (2+8) * nrules # Total dimensions
-    cont_dimensions = 2 * nrules
+    
+    cont_dimensions = 2 * nrules if optimize_membership else 0
     categ_dimensions = 8 * nrules
     opt = ParticleSwarm(num_agents=num_agents, num_variables=[cont_dimensions, categ_dimensions], max_fevals=max_fevals)
-    configure_mopt_membership(opt, mask)
+    if optimize_membership:
+        configure_mopt_membership(opt, mask)
     opt.num_categories([nq, no, nq, no, nq, na, na, na] * nrules)
     opt.reset(seed)
     opt.weights[0,:] = 0.3
@@ -103,6 +106,7 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
     all_objectives = []
     archive_functions_error = []
     pop_scores = dict()
+    iteration = 0
     while not opt.stop():
         X = opt.ask()
             
@@ -126,10 +130,14 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, db="./db/warmup
         archive_functions_error.append(Y_function_error)
 
         iteration_best_objective_idx = np.argmin(Y_objective)
+        print(f"Iteration {iteration} over {max_fevals/num_agents}:", end="")
         if Y_objective[iteration_best_objective_idx] < best_configuration_objective:
             best_configuration_objective = Y_objective[iteration_best_objective_idx]
-            print(f"New best: {best_configuration_objective}")
+            print(f"New best: {best_configuration_objective}", end="")
             best_configuration = X[iteration_best_objective_idx, :]
+        print(".")
+        iteration += 1
+        
 
     if not return_all:
         return opt.profile, best_configuration

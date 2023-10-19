@@ -10,17 +10,12 @@ from hybris.functions import available_functions
 from hybris.problems import get_benchmark
 
 def profiler_kernel(prob_conf_seed, opt_args, endresult=False):
-    if len(prob_conf_seed[1][1]) == 2:
-        (_, problem), (_, (rules, mask)), seed = prob_conf_seed
-    elif len(prob_conf_seed[1][1]) == 3:
-        (_, problem), (_, (rules, mask, weights)), seed = prob_conf_seed
-    else:
-        print("Error: ", len(prob_conf_seed[1][1]))
+    (_, problem), (_, (rules, mask, weights)), seed = prob_conf_seed
 
     opt = ParticleSwarm(**opt_args)
     opt.disable_all_rules()
     opt.set_rules_fromlist(mask, rules)
-    if len(prob_conf_seed[1][1]) == 3:
+    if weights:
         opt.set_memberships(mask, weights)
     opt.minimize_problem(problem, seed)
     if endresult is True:
@@ -41,6 +36,10 @@ def profile_configurations(configurations, nruns=5, benchmark="train", max_worke
     optimizer_args.update(optimizer_args_update)
     
     problems = [ available_functions[fn["function"]] for fn in bench ]
+    for prob, pd in zip(problems, bench):
+        prob.lower = pd["lower"]
+        prob.upper = pd["upper"]
+
     fstar = np.asarray([ available_functions[fn["soluce"]] if "soluce" in fn else 0.0 for fn in bench ])
 
 

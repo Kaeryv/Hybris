@@ -25,7 +25,7 @@ setup(
     name='hybris-py',
     version='0.1.1',
     python_requires='>=3.3, <4',
-    ext_modules=[Extension("hybris.chybris", sources=["chybris/chybris.c"])],
+    ext_modules=[Extension("hybris.chybris", sources=["chybris/chybris.c"], "define_macros": [("ADD_CECBENCHMARK", None)])],
     description='A Python binding for Hybris PSO Optimizer',
     long_description=long_description,
     long_description_content_type='text/markdown',

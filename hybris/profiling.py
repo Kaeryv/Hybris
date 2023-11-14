@@ -13,6 +13,8 @@ def profiler_kernel(prob_conf_seed, opt_args, endresult=False):
     (_, problem), (_, (rules, mask, weights)), seed = prob_conf_seed
 
     opt = ParticleSwarm(**opt_args)
+    opt.vmin = problem.lower
+    opt.vmax = problem.upper
     opt.disable_all_rules()
     opt.set_rules_fromlist(mask, rules)
     if weights:

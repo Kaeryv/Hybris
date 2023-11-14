@@ -761,10 +761,6 @@ reg_process_fitness(registry_t* reg) {
 subroutine
 reg_minimize_problem(registry_t* reg, TestCase test_case, u32 seed)
 {
-  //const int num_continuous_variables = reg->num_dimensions - reg->nu
-  //for_range(j, )
-  //reg->lower_bound[j] = test_case.lower;
-  //reg->upper_bound[j] = test_case.upper;
   registry_init(reg, seed);
   #ifdef ADD_CECBENCHMARK
   struct cecbench_state cstate;

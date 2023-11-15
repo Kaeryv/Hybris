@@ -5,8 +5,6 @@ from typing import List
 
 class ParticleSwarm():
     def __init__(self, num_agents=40, num_variables=[10, 0], max_fevals=4000, initial_weights=None) -> None:
-        if initial_weights:
-            self.initial_weights = initial_weights
         self.num_dimensions = sum(num_variables)
         self.max_iterations = max_fevals // num_agents
         self.num_agents = num_agents
@@ -14,8 +12,10 @@ class ParticleSwarm():
         self.handle = hybris.registry_create(
             num_agents, self.num_dimensions, num_variables[1], self.max_iterations)
 
+        if initial_weights:
+            self.initial_weights = initial_weights
+        
         self._stop = True
-
         self.iteration = 0
     
     @property

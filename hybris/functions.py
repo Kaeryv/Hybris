@@ -1,5 +1,5 @@
 import hybris
-from hybris import c_double_ptr, CFunState, CPRNG, c_double_ptr, c_int32, c_int32, CFunState, FunSig, _lhybris
+from hybris import c_double_ptr, CFunState, CPRNG, c_double_ptr, c_int32, c_int32, CFunState, FunSig, _lhybris, CECState
 import numpy as np
 from ctypes import pointer
 
@@ -23,6 +23,7 @@ def test_function(X, name="sphere"):
     state = CFunState()
     prng = CPRNG()
     state.prng = pointer(prng)
+    state.cecglobals = pointer(CECState())
     
     function(np.ascontiguousarray(X).ctypes.data_as(c_double_ptr), nagents, ndim, y.ctypes.data_as(c_double_ptr), state)
     return y

@@ -72,6 +72,11 @@ class CECState(_CECState):
         super().__init__()
         _lhybris.cecbench_state_init(pointer(self))
 
+    def __del__(self):
+        _lhybris.cecbench_state_free(pointer(self))
+    
+
+
 
 class CController(Structure):
     _fields_ = [ 

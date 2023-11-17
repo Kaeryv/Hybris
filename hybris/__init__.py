@@ -94,7 +94,7 @@ class CController(Structure):
 class CFunState(Structure):
     _fields_ = [
         ("prng",       POINTER(CPRNG)),
-        ("cecglobals", POINTER(CECState)),
+        ("cecglobals", POINTER(_CECState)),
     ]
 
 ''' Definition of a C problem aptitude function interface '''
@@ -213,12 +213,3 @@ def init_callables():
         
 init_callables()
 
-import numpy as np
-def testfunction(function, X):
-    N, D = X.shape
-    f = np.empty(N)
-    prng = CPRNG()
-    cec = CECState()
-    state = CFunState(pointer(prng), pointer(cec))
-    function(np.ascontiguousarray(X).ctypes.data_as(POINTER(c_double)), N, D, f.ctypes.data_as(POINTER(c_double)), state)
-    return f

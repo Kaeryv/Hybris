@@ -31,10 +31,3 @@ def get_benchmark(name: str):
         data = yaml.safe_load(f)
     
     return data[name]
-
-import numpy as np
-from hybris import testfunction
-def get_doe(problem, num_dimensions, num_items):
-    x = problem.lower + (problem.upper - problem.lower) * np.random.rand(num_items, num_dimensions)
-    y = testfunction(problem.function, x)
-    return x, y

@@ -272,7 +272,7 @@ reg_refresh_rand_topology(registry_t * reg, const i32 num_agents, i32 initial_ru
     set_put_i32(&reg->friends[i*num_agents], &reg->friends_count[i], num_agents, i);
 
     // Fill with random friends
-    while (reg->friends_count[i] < round(num_agents * GetWeight(reg, i, WFRIENDS_CAPACITY)))
+    while (reg->friends_count[i] < fmin(round(num_agents * GetWeight(reg, i, WFRIENDS_CAPACITY)), num_agents))
     {
         i32 picked_friend = urand() % reg->num_agents;
         set_put_i32(&reg->friends[i*num_agents], &reg->friends_count[i], num_agents, picked_friend);
@@ -583,7 +583,7 @@ reg_update_motion(registry_t *noalias reg, const i32 num_agents, const i32 num_d
 
   for (i32 i = 0; i < num_agents; i++)
   {
-      if(drandoo() > GetWeight(reg, i, WHYBRIDATION))
+      if(drandoo() >= GetWeight(reg, i, WHYBRIDATION))
       	reg_speed_classical(reg, num_agents, num_continuous_dimensions, i);
       else
         reg_speed_quantum(reg, 0.96, num_agents, num_continuous_dimensions, i);

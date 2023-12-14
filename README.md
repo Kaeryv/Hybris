@@ -28,9 +28,9 @@ An optimization of function Sphere can be conducted as follows
 def objective_function(X):
     return np.mean(np.power(X, 2), axis=-1)
 
-from hybris.optim import Optimizer
-opt = Optimizer(20, [10, 0], max_fevals=200)
-opt.vmin = -5.0, opt.vmax = 5.0
+from hybris.optim import ParticleSwarm
+opt = ParticleSwarm(20, [10, 0], max_fevals=200)
+opt.vmin = -5.0, opt.vmax = 5.0 # Boundaries
 opt.reset(456349)
 
 while not opt.stop():
@@ -49,6 +49,7 @@ plt.savefig("Profile.png")
 To do meta-optimization, any categorical optimizer can be used. We provide a simplified way to do so in the `meta` module.
 ```python
 from hybris.meta import optimize_self
+# Optimizing controls for omega and hybridation with QPSO
 prof = optimize_self("1001000", 43)
 import matplotlib.pyplot as plt
 plt.plot(prof)

@@ -148,6 +148,10 @@ class ParticleSwarm():
     @property
     def position_memories(self):
         return as_array(self.handle.contents.mem_position, shape=(self.num_agents, self.num_dimensions))
+
+    @property
+    def speed(self):
+        return as_array(self.handle.contents.speed, shape=(self.num_agents, self.num_dimensions))
     @property
     def aptitude_memories(self):
         return as_array(self.handle.contents.mem_aptitude, shape=(self.num_agents, ))

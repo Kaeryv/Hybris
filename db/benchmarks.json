@@ -10,6 +10,17 @@
         "funset": 1,
         "soluces": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     },
+    "train10":{
+        "title": "Training benchmark",
+        "description":"A personal benchmark used to perform meta-optimization.",
+        "optimizer_args": {
+            "max_fevals": 4000,
+            "num_agents": 40,
+            "num_variables": [10, 0]
+        },
+        "funset": 1,
+        "soluces": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
     "mixed_debug":{
         "title": "mixed benchmark",
         "description":"A personal benchmark used to perform meta-optimization.",

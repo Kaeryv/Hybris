@@ -105,13 +105,14 @@ def optimize_self(mask, seed=42, optimize_membership=False, db="./db/warmup/full
                     pop_scores[x_hash] = Y_function_error[:, i][:]
                 else:
                     print("[Warning] Evaluating same configuration")
-            opt.tell(Y_objective)
 
             # Update memories as an objective based on rank changes!
             scores_reevaluation = np.asarray([ pop_scores[hash(tuple(map(lambda a: int(500*a), x)))] for x in opt.position_memories]).T
             ranks_reevaluation = rank_in_db(db, scores_reevaluation)
             opt.aptitude_memories[:] = np.mean(ranks_reevaluation, axis=0)
 
+            opt.tell(Y_objective)
+            
             all_configurations.append(X)
             all_objectives.append(Y_objective)
             archive_functions_error.append(Y_function_error)

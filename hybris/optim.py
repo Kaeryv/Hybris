@@ -1,9 +1,100 @@
 import hybris
 from numpy.ctypeslib import as_array
-from ctypes import c_uint32, c_void_p
+from ctypes import c_uint32
 from typing import List
+from abc import ABC, abstractmethod
+import numpy as np
+import json
 
-class ParticleSwarm():
+class OptimizerFactory():
+    @staticmethod
+    def create(type, **kwargs):
+        if type == "pso":
+            return ParticleSwarm(**kwargs)
+        else:
+            raise NotImplementedError
+
+class Optimizer(ABC):
+    @abstractmethod
+    def reset(self, seed):
+        pass
+    @abstractmethod
+    def stop(self):
+        pass
+    @abstractmethod
+    def vmin(self):
+        pass
+    @abstractmethod
+    def vmax(self):
+        pass
+
+def expandw(mask, x):
+    if len(x) == 0:
+        return None
+    x = np.asarray(x)
+    hard_boundaries = [
+        (0.0, 1.0), # w
+        (0.0, 2.5), # c1
+        (0.0, 2.5), # c2
+        (0.0, 1.0), # h
+        (-16, -1.), # l
+        (0.0, 1.0), # L
+        (0.0, 1.0)  # K
+    ]
+    nrules = mask.count("1")
+    wcw = x.reshape(nrules, 2)
+    j = 0
+    ret = []
+    for i, e in enumerate(list(mask)):
+        if e == "1":
+            c = wcw[j][0]
+            w = wcw[j][1] / 2.0
+            ret.extend([ max(hard_boundaries[i][0], c - w), c, min(c+w, hard_boundaries[i][1])])
+            j += 1
+    return ret
+
+class RuleSet():
+    def __init__(self, mask, raw, count, type=0):
+        self.raw = np.array(raw)
+        self.count = sum(map(int, mask))
+        cont_dimensions = 2 * count if type == 1 else 0
+
+        self.controllers = self.raw[cont_dimensions:].astype(int)
+        self.mask = mask
+        self.weights = np.array(expandw(mask, self.raw[:cont_dimensions])) if type == 1 else None
+        self.type = type
+
+    def save(self, filename, more={}):
+        with open(filename, "w") as f:
+            json.dump({
+                "raw": self.raw.tolist(),
+                "mask": self.mask,
+                "type": self.type,
+                "weights": self.weights.tolist(),
+                "controllers": self.controllers.tolist() if  self.controllers is not None else None,
+                "count": self.count,
+                "more": more
+            }, f)
+    
+    @classmethod
+    def load(cls, filename):
+        with open(filename, "r") as f:
+            f = json.load(f)
+            self = cls(f["mask"], f["raw"], f["count"], f["type"])
+
+        return self, f["more"]
+
+
+def setup_opt_control(opt, ruleset: RuleSet = None):
+    if ruleset is None:
+        return
+    opt.disable_all_rules()
+    opt.set_rules_fromlist(ruleset.mask, ruleset.controllers)
+    if ruleset.weights is not None:
+        opt.set_memberships(ruleset.mask, ruleset.weights)
+
+
+class ParticleSwarm(Optimizer):
     def __init__(self, num_agents=40, num_variables=[10, 0], max_fevals=4000, initial_weights=None) -> None:
         self.num_dimensions = sum(num_variables)
         self.max_iterations = max_fevals // num_agents

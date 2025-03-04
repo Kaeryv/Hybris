@@ -1,6 +1,9 @@
 import hybris
 import copy
 from enum import IntEnum
+from types import SimpleNamespace
+from functools import partial
+from .functions import test_function
 
 class ProblemTag(IntEnum):
     TRAINING    = 1 << 0
@@ -25,9 +28,39 @@ class ProblemSet:
         return hybris.get_num_filtered_testcases(tag)
 
 
-def get_benchmark(name: str):
-    import yaml
-    with open("db/benchmarks.yml") as f:
-        data = yaml.safe_load(f)
+class Benchmark():
+    @classmethod
+    def get(cls, name: str):
+        import yaml
+        with open("db/benchmarks.yml") as f:
+            data = yaml.safe_load(f)
+        
+        return cls(data[name])
+
+    def __init__(self, input_dict):
+        self.db = SimpleNamespace(**input_dict)
     
-    return data[name]
+    def problem(self, fname):
+        prob = list(filter(lambda p: p['function'] == fname, self.problems))
+        if len(prob) == 0 or len(prob) > 1:
+            raise LookupError
+        return SimpleNamespace(**prob[0])
+
+    @property
+    def function_names(self):
+        return (p['function'] for p in self.problems)
+    
+    @property
+    def problems(self):
+        return self.db.problems
+    
+    @property
+    def optimizer_args(self):
+        return self.db.optimizer_args
+    
+    def optimizer_set_bounds(self, fname, opt):
+        opt.vmin = self.problem(fname).lower
+        opt.vmax = self.problem(fname).upper
+
+    def function(self, fname):
+        return partial(test_function, name=fname)

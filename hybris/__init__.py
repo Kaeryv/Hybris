@@ -213,3 +213,7 @@ def init_callables():
         
 init_callables()
 
+
+
+from .optim import ParticleSwarm, Optimizer, OptimizerFactory
+from .problems import Benchmark

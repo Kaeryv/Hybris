@@ -2,12 +2,12 @@ import sys
 sys.path.append(".")
 import time
 import numpy as np
-from hybris.optim import Optimizer
+from hybris.optim import ParticleSwarm
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 start = time.time_ns()
-optim = Optimizer(num_variables=[2, 0])
+optim = ParticleSwarm(num_variables=[2, 0])
 optim.vmin = -1.0
 optim.vmax = 1.0
 optim.reset(42)

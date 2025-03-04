@@ -3,13 +3,13 @@ import sys
 sys.path.append(".")
 import time
 import numpy as np
-from hybris.optim import Optimizer
+from hybris.optim import ParticleSwarm
 
 class TestDiscrete(unittest.TestCase):
     def test_discrete(self):
         start = time.time_ns()
 
-        optim = Optimizer(num_variables=[0, 5])
+        optim = ParticleSwarm(num_variables=[0, 5])
         optim.num_categories([3, 4, 50, 50, 50])
         optim.reset(42)
 

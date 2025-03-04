@@ -2,7 +2,7 @@ import sys
 sys.path.append(".")
 from hybris.profiling import profile_configurations
 
-res = profile_configurations([([], "0000000")], max_workers=12, endresult=True)
+res = profile_configurations([None], max_workers=12, endresult=True)
 print(",\n".join(map(str, res.mean(axis=-1).flat)))
 import numpy as np
 print(res.shape)

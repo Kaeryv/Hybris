@@ -1,5 +1,5 @@
-from hybris.optim import ParticleSwarm
-from hybris.problems import get_benchmark, ProblemSet
+from hybris.optim import ParticleSwarm, setup_opt_control
+from hybris.problems import Benchmark
 import logging
 from itertools import product
 from concurrent.futures import ThreadPoolExecutor
@@ -7,18 +7,18 @@ from functools import partial
 import tqdm
 import numpy as np
 from hybris.functions import available_functions
-from hybris.problems import get_benchmark
 
 def profiler_kernel(prob_conf_seed, opt_args, endresult=False):
-    (_, problem), (_, (rules, mask, weights)), seed = prob_conf_seed
+    (_, problem), (_, rule), seed = prob_conf_seed
 
     opt = ParticleSwarm(**opt_args)
     opt.vmin = problem.lower
     opt.vmax = problem.upper
-    opt.disable_all_rules()
-    opt.set_rules_fromlist(mask, rules)
-    if weights:
-        opt.set_memberships(mask, weights)
+    setup_opt_control(opt, rule)
+    #opt.disable_all_rules()
+    #opt.set_rules_fromlist(mask, rules)
+    #if weights:
+    #    opt.set_memberships(mask, weights)
     opt.minimize_problem(problem, seed)
     if endresult is True:
         return opt.profile[-1]
@@ -33,8 +33,9 @@ def profile_configurations(configurations, nruns=5, benchmark="train", max_worke
 
     logging.info(f"Starting to profile configurations with {max_workers} workers.")
 
-    bench = get_benchmark(benchmark)["problems"]
-    optimizer_args = get_benchmark(benchmark)["optimizer_args"]
+    bench = Benchmark.get(benchmark)
+    optimizer_args = bench.optimizer_args
+    bench = bench.problems
     optimizer_args.update(optimizer_args_update)
     
     problems = [ available_functions[fn["function"]] for fn in bench ]

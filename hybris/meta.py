@@ -4,10 +4,13 @@ from .profiling import profile_configurations
 from functools import partial
 from . import _lhybris
 import numpy as np
-from .optim import ParticleSwarm
+from .optim import ParticleSwarm, RuleSet, OptimizerFactory
 
 from typing import AnyStr
-from .problems import get_benchmark
+from .problems import Benchmark
+from types import SimpleNamespace
+
+from tqdm import tqdm
 
 import os
 
@@ -51,36 +54,18 @@ def configure_mopt_membership(mopt, mask):
     mopt.vmin = vmin
     mopt.vmax = vmax
 
-
-def expandw(mask, x):
-    if len(x) == 0:
-        return None
-    x = np.asarray(x)
-    hard_boundaries = [
-        (0.0, 1.0), # w
-        (0.0, 2.5), # c1
-        (0.0, 2.5), # c2
-        (0.0, 1.0), # h
-        (-16, -1.), # l
-        (0.0, 1.0), # L
-        (0.0, 1.0)  # K
-    ]
-    nrules = mask.count("1")
-    wcw = x.reshape(nrules, 2)
-    j = 0
-    ret = []
-    for i, e in enumerate(list(mask)):
-        if e == "1":
-            c = wcw[j][0]
-            w = wcw[j][1] / 2.0
-            ret.extend([ max(hard_boundaries[i][0], c - w), c, min(c+w, hard_boundaries[i][1])])
-            j += 1
-    return ret 
-def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, optimize_membership=False, db="./db/warmup/full.npy", return_all=False, profiler_args={}):
+def optimize_self(mask, seed=42, optimize_membership=False, db="./db/warmup/full.npy", return_all=False, profiler_args={}, metaopt_args={}):
     profiler_defaults = {"benchmark": "train", "nruns": 5, "max_workers": 8 }
     profiler_defaults.update(profiler_args)
     profiler_args = profiler_defaults
-    bench = get_benchmark(profiler_args["benchmark"])["problems"]
+    del profiler_defaults
+    
+    metaopt_defaults = {"num_agents": 10, "max_fevals": 2000}
+    metaopt_defaults.update(metaopt_args)
+    metaopt_args = metaopt_defaults
+    del metaopt_defaults
+
+    bench = Benchmark.get(profiler_args["benchmark"]).problems
     nfunctions = len(bench)
     if isinstance(db, str):
         db = np.load(db) if os.path.isfile(db) else -np.inf * np.ones((nfunctions,1))
@@ -92,7 +77,7 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, optimize_member
     
     cont_dimensions = 2 * nrules if optimize_membership else 0
     categ_dimensions = 8 * nrules
-    opt = ParticleSwarm(num_agents=num_agents, num_variables=[cont_dimensions, categ_dimensions], max_fevals=max_fevals)
+    opt = OptimizerFactory.create(**metaopt_args, num_variables=[cont_dimensions, categ_dimensions])
     if optimize_membership:
         configure_mopt_membership(opt, mask)
     opt.num_categories([nq, no, nq, no, nq, na, na, na] * nrules)
@@ -107,44 +92,48 @@ def optimize_self(mask, seed=42, num_agents=10, max_fevals=2000, optimize_member
     archive_functions_error = []
     pop_scores = dict()
     iteration = 0
-    while not opt.stop():
-        X = opt.ask()
-            
-        configurations = [ (x[cont_dimensions:].astype(np.int32), mask, expandw(mask, x[:cont_dimensions])) for x in X ] 
-        Y_objective, Y_ranks, Y_function_error, db = benchmark_rule(configurations, db, profiler_args, append2db=True)
-        for i, x in enumerate(X):
-            x_hash = hash(tuple(map(lambda a: int(500*a), x)))
-            if not x_hash in pop_scores.keys():
-                pop_scores[x_hash] = Y_function_error[:, i][:]
-            else:
-                print("[Warning] Evaluating same configuration")
-        opt.tell(Y_objective)
 
-        # Update memories as an objective based on rank changes!
-        scores_reevaluation = np.asarray([ pop_scores[hash(tuple(map(lambda a: int(500*a), x)))] for x in opt.position_memories]).T
-        ranks_reevaluation = rank_in_db(db, scores_reevaluation)
-        opt.aptitude_memories[:] = np.mean(ranks_reevaluation, axis=0)
+    with tqdm(total=opt.max_iterations) as pbar:
+        while not opt.stop():
+            X = opt.ask()
+                
+            configurations = [ RuleSet(mask, x, nrules, optimize_membership) for x in X ] 
+            Y_objective, Y_ranks, Y_function_error, db = benchmark_rule(configurations, db, profiler_args, append2db=True)
+            for i, x in enumerate(X):
+                x_hash = hash(tuple(map(lambda a: int(500*a), x)))
+                if not x_hash in pop_scores.keys():
+                    pop_scores[x_hash] = Y_function_error[:, i][:]
+                else:
+                    print("[Warning] Evaluating same configuration")
+            opt.tell(Y_objective)
 
-        all_configurations.append(X)
-        all_objectives.append(Y_objective)
-        archive_functions_error.append(Y_function_error)
+            # Update memories as an objective based on rank changes!
+            scores_reevaluation = np.asarray([ pop_scores[hash(tuple(map(lambda a: int(500*a), x)))] for x in opt.position_memories]).T
+            ranks_reevaluation = rank_in_db(db, scores_reevaluation)
+            opt.aptitude_memories[:] = np.mean(ranks_reevaluation, axis=0)
 
-        iteration_best_objective_idx = np.argmin(Y_objective)
-        print(f"Iteration {iteration} over {max_fevals/num_agents}:", end="")
-        if Y_objective[iteration_best_objective_idx] < best_configuration_objective:
-            best_configuration_objective = Y_objective[iteration_best_objective_idx]
-            print(f"New best: {best_configuration_objective}", end="")
-            best_configuration = X[iteration_best_objective_idx, :]
-        print(".")
-        iteration += 1
+            all_configurations.append(X)
+            all_objectives.append(Y_objective)
+            archive_functions_error.append(Y_function_error)
+
+            iteration_best_objective_idx = np.argmin(Y_objective)
+            #print(f"Iteration {iteration} over {metaopt_args["max_fevals"]/metaopt_args["num_agents"]}:", end="")
+            if Y_objective[iteration_best_objective_idx] < best_configuration_objective:
+                best_configuration_objective = Y_objective[iteration_best_objective_idx]
+            #    print(f"New best: {best_configuration_objective}", end="")
+                best_configuration = X[iteration_best_objective_idx, :]
+            #print(".")
+            iteration += 1
+            pbar.update(1)
         
 
     if not return_all:
-        return opt.profile, best_configuration
+        return opt.profile, RuleSet(mask, best_configuration, nrules, optimize_membership)
     else:
-        return opt.profile, best_configuration, (all_configurations, all_objectives, archive_functions_error), db
+        return opt.profile, RuleSet(mask, best_configuration, nrules, optimize_membership), (all_configurations, all_objectives, archive_functions_error), db
 
 def optimize_gbrt(mask, seed=42, num_agents=10, max_fevals=2000, optimize_membership=False, db="./db/warmup/full.npy", return_all=False, profiler_args={}):
+    raise NotImplementedError
     profiler_defaults = {"benchmark": "train", "nruns": 5, "max_workers": 8 }
     profiler_defaults.update(profiler_args)
     profiler_args = profiler_defaults

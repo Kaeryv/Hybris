@@ -54,7 +54,7 @@ def expandw(mask, x):
     return ret
 
 class RuleSet():
-    def __init__(self, mask, raw, count, type=0):
+    def __init__(self, mask, raw, count=0, type=0):
         self.raw = np.array(raw)
         self.count = sum(map(int, mask))
         cont_dimensions = 2 * count if type == 1 else 0
